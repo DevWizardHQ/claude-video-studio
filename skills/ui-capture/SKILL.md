@@ -46,6 +46,10 @@ Top-level options: `setup` (actions run before recording starts, for example log
 
 Extract frames at each cue start and a mid-typing frame; open them. Reject the take if a masked value is readable, a click misses, or a validation error shows unintentionally.
 
+## Selectors
+
+Prefer ids, roles or `data-` attributes. A text selector such as `text=Resend` can match decorative copy elsewhere on the page (a side panel) and click the wrong element; confirm what a selector resolves to, with a frame or a DOM probe, before a real take.
+
 ## Safety notes from real runs
 
 - Never leave a stale runner alive: a second process polling the same `inputs/` file steals the code. List with `ps` and kill by PID before each take.

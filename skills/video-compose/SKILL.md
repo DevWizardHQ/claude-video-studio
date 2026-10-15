@@ -28,6 +28,13 @@ Inputs: `out/events.json`, `out/raw.path`, `topic.json`, `voice/ph<N>.wav`, `voi
 
 Offer the choices in `references/style-catalog.md` before editing `brand.json` `style`. Ask whether captions are burned in, delivered as sidecar subtitles only, both, or omitted, and whether tooltips are wanted. `captions.srt` and `captions.vtt` are always written by `compose.py`.
 
+## Pacing options (topic.json)
+
+- `cutKeep`: seconds of each cut wait to keep, per cut in order (keep 5 to 6 for a countdown a line plays over, 1 for a wait for the user).
+- `compressGaps`: `{"over":3,"to":2,"maxFactor":5}` fast-forwards silent action gaps longer than 3s.
+- `autoSpeed`, `alignToMark`, `retime`, `hold` (seconds of the last screen after the last line, default 3).
+- Two takes can be joined at a phrase with `tools/join_takes.py head_dir tail_dir out_dir <phrase>`.
+
 ## First run
 
 `cd remotion && npm i`. Put the brand logo at `public/logo.png` and a Bengali-capable font at `public/font.ttf` (Noto Sans Bengali, SIL OFL, from Google Fonts). Remotion downloads its own headless browser on the first render. Requires ffmpeg 4.4 or newer.

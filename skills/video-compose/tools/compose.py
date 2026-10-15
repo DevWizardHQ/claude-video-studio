@@ -17,12 +17,14 @@ phrases = {p["i"]: p for p in json.loads((root / topic["phrases"]).read_text())}
 data = json.loads((out_dir / "events.json").read_text())
 raw = (out_dir / "raw.path").read_text().strip()
 shift, end = data["shift"], data["end"]
-KEEP, HOLD, LEAD = 1.0, 4.0, 0.4
+KEEP, LEAD = 1.0, 0.4
+HOLD = float(topic.get("hold", 3.0))
 
 cuts = sorted(data["cuts"], key=lambda c: c["ws"])
 ops = []
-for c in cuts:
-    keep = min(KEEP, c["we"] - c["ws"])
+cut_keep = topic.get("cutKeep", [])
+for n, c in enumerate(cuts):
+    keep = min(float(cut_keep[n]) if n < len(cut_keep) else KEEP, c["we"] - c["ws"])
     ops.append(("cut", c["ws"] + keep, c["we"], 1.0))
 for sp in topic.get("speed", []):
     ops.append(("speed", float(sp["start"]), float(sp["end"]), float(sp["factor"])))
@@ -31,6 +33,17 @@ if auto:
     for m in data.get("marks", []):
         if m["kind"] == auto.get("kind", "code-typing") and m["b"] - m["a"] > 2.0:
             ops.append(("speed", m["a"], m["b"], float(auto.get("factor", 2.4))))
+gap_cfg = topic.get("compressGaps")
+if gap_cfg:
+    limit, target, top = float(gap_cfg.get("over", 3.0)), float(gap_cfg.get("to", 2.0)), float(gap_cfg.get("maxFactor", 5.0))
+    evs = sorted(data["events"], key=lambda e: e["t"])
+    for cur, nxt in zip(evs, evs[1:]):
+        a, b = cur["t"] + cur["dur"] + 0.15, nxt["t"]
+        if b - a <= limit:
+            continue
+        if any(not (b <= oa or a >= ob) for _, oa, ob, _ in ops):
+            continue
+        ops.append(("speed", a, b, min(top, (b - a) / target)))
 ops.sort(key=lambda o: o[1])
 segments, cursor = [], 0.0
 for kind, a, b, f in ops:

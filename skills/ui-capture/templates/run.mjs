@@ -253,8 +253,7 @@ try {
     lastBox = null;
     const ev = { i: ph.i, t: start - shift, dur: d };
     events.push(ev);
-    const hasAsk = (cue.do ?? []).some((a) => a.askUser);
-    const limit = (hasAsk ? (cue.do.find((a) => a.askUser).askUser.timeoutSeconds ?? 900) + 120 : 90) * 1000;
+    const limit = Math.max(90, ...(cue.do ?? []).map((a) => (a.askUser ? (a.askUser.timeoutSeconds ?? 900) + 120 : a.waitEnabled ? (a.waitEnabled.timeoutSeconds ?? 120) + 60 : 0))) * 1000;
     console.log(`cue ${ph.i} start`);
     const body = async () => {
       if (cue.land === 'end') await sleep(Math.max(0, d - EST) * 1000);
