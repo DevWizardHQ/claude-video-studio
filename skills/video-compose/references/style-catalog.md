@@ -64,7 +64,8 @@ Rule: at most one tooltip per scene, 6 words or fewer.
 | intro | `hook` | ready (hook line then title card, 4 to 5s; set `introHook`) |
 | intro | `none` | ready |
 | intro | `logo-reveal`, `kinetic-title` | planned |
-| outro | `recap` | ready (result, step checklist, CTA, support lines, domain; set `outroCta`, `supportLines`, `recapTitle`) |
+| outro | `thanks` | ready, default (logo, thanks, subtitle, CTA, phone and email chips, domain; set `outroTitle`, `outroSubtitle`, `outroCta`, `supportLines`) |
+| outro | `recap` | ready (adds a step checklist; set `recapTitle`) |
 | outro | `card` | ready (thank-you and domain) |
 | outro | `none` | ready |
 | outro | `next-video` | planned |

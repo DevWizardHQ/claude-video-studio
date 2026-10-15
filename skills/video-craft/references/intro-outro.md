@@ -47,7 +47,8 @@ Confirm what was learned, name the next action, make help easy to find.
 ### Styles
 | Style | When |
 |-------|------|
-| `recap` | Tutorials and onboarding. Default. 6 to 7s. |
+| `thanks` | Default for tutorials. Logo, thanks line, one call to action, phone and email chips, domain. 6 to 7s. No lists. |
+| `recap` | Optional: adds a step checklist. Use only when the viewer must remember many steps. |
 | `card` | Feed cuts and announcements. 3s: thank-you plus domain. |
 | `none` | When the platform adds its own end screen. |
 

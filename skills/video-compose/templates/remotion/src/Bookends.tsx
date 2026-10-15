@@ -5,7 +5,7 @@ const FONT = "'BrandFont', 'Noto Sans Bengali', system-ui, sans-serif";
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 const ease = Easing.bezier(0.16, 1, 0.3, 1);
 
-type Extra = { introHook?: string; outroCta?: string; supportLines?: string[]; recapTitle?: string };
+type Extra = { introHook?: string; outroCta?: string; outroSubtitle?: string; supportLines?: string[]; recapTitle?: string };
 const x = brand as typeof brand & Extra;
 
 const LogoPill = ({ height = 96 }: { height?: number }) => (
@@ -52,7 +52,41 @@ const Check = () => (
   <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#7bd88a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12l4 4 10-10" /></svg>
 );
 
+const Phone = () => (
+  <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#bfe8c6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z" /></svg>
+);
+const Mail = () => (
+  <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#bfe8c6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M3 7l9 6 9-6" /></svg>
+);
+
+const Thanks = () => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const at = (d: number) => spring({ frame: frame - Math.round(d * fps), fps, config: { damping: 22, stiffness: 120 } });
+  const rise = (p: number) => ({ opacity: p, translate: `0 ${interpolate(p, [0, 1], [22, 0])}px` });
+  const support = x.supportLines ?? [];
+  return (
+    <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", textAlign: "center" }}>
+      <div style={{ ...rise(at(0)), marginBottom: 36 }}><LogoPill height={84} /></div>
+      <div style={{ ...rise(at(0.2)), fontFamily: FONT, fontWeight: 600, fontSize: 82, color: "#fff", lineHeight: 1.25 }}>{brand.outroTitle}</div>
+      {x.outroSubtitle ? <div style={{ ...rise(at(0.35)), fontFamily: FONT, fontWeight: 400, fontSize: 38, color: brand.light, marginTop: 14 }}>{x.outroSubtitle}</div> : null}
+      {x.outroCta ? (
+        <div style={{ ...rise(at(0.7)), marginTop: 54, background: brand.primary, color: "#fff", fontFamily: FONT, fontWeight: 600, fontSize: 40, padding: "20px 44px", borderRadius: 18, boxShadow: "0 14px 34px rgba(0,0,0,.32)" }}>{x.outroCta}</div>
+      ) : null}
+      <div style={{ ...rise(at(1.0)), marginTop: 44, display: "flex", gap: 22 }}>
+        {support.map((l, i) => (
+          <div key={l} style={{ display: "flex", alignItems: "center", gap: 14, fontFamily: FONT, fontWeight: 400, fontSize: 32, color: "#fff", background: "rgba(255,255,255,.1)", border: "1px solid rgba(255,255,255,.22)", borderRadius: 16, padding: "14px 26px" }}>
+            {i === 0 ? <Phone /> : <Mail />}{l}
+          </div>
+        ))}
+      </div>
+      <div style={{ ...rise(at(1.3)), marginTop: 36, fontFamily: "system-ui, sans-serif", fontWeight: 500, fontSize: 36, color: brand.light }}>{brand.domain}</div>
+    </AbsoluteFill>
+  );
+};
+
 export const Outro = () => {
+  if (brand.style.outro === "thanks") return <Thanks />;
   const recap = brand.style.outro === "recap";
   const head = useIn(0);
   const frame = useCurrentFrame();

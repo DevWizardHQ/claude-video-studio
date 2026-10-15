@@ -19,7 +19,7 @@ Ask in this order. Rounds of 3 to 4 questions. Recommendation first.
 - **Length**: Under 60s / 60 to 120s (Recommended for one flow) / 2 to 4 min.
 - **Brand**: Logo file, primary color, font, URL to show. Use the product site when not given.
 - **Intro**: Hook line then title (Recommended for public tutorials) / Title card / None. Ask for the hook line or draft two options from the story.
-- **Outro**: Recap checklist with call to action and support (Recommended for tutorials) / Thank-you card / None. Ask for the CTA text and confirm every support contact.
+- **Outro**: Thank-you with call to action and support contacts (Recommended for tutorials) / Add a step recap checklist / Plain thank-you card / None. Ask for the CTA text and confirm every support contact.
 
 ## Round 4 - content depth
 - **Flow coverage**: Happy path only / Happy path plus edge cases (Recommended).

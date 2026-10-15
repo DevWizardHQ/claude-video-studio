@@ -38,13 +38,15 @@
     "progress": "bar",
     "stepChip": true,
     "intro": "card",
-    "outro": "recap"
+    "outro": "thanks"
   },
   "introHook": "",
   "recapTitle": "Recap",
+  "outroSubtitle": "",
   "outroCta": "Next step: call to action",
   "supportLines": [
     "Phone: 000000000",
     "Email: support@example.com"
-  ]
+  ],
+  "outroSubtitle": "আমার সেবার সাথে থাকার জন্য · আপনার দিনটি শুভ হোক"
 }
