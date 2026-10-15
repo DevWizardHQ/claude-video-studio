@@ -9,7 +9,9 @@ Inputs: `out/events.json`, `out/raw.path`, `topic.json`, `voice/ph<N>.wav`, `voi
 
 ## Steps
 
-1. **Audio per phrase.** Preferred: one file per speaker line (`L01.wav` ...). Convert and index them:
+1. **Audio per phrase.** Default: one file for the whole script. Split it using the sheet:
+   `python3 ${CLAUDE_PLUGIN_ROOT}/skills/video-compose/tools/split_from_sheet.py speaker-lines.md audio/full.wav voice/`
+   The tool uses the long silences as line breaks (exact when their count equals the number of lines minus one) and falls back to an approximate match, saying which. Fallback: one file per speaker line (`L01.wav` ...). Convert and index them:
    `python3 ${CLAUDE_PLUGIN_ROOT}/skills/video-compose/tools/prepare_lines.py speaker-lines.md audio/ voice/`
    This writes `voice/ph<N>.wav` and `voice/phrases.json` (`i`, `step`, `text`, `caption`). If the user supplied one long file, write `lines.json` (`[{"i":0,"step":0,"text":"..."}]`) and split:
    `python3 .../tools/split_audio.py narration.wav lines.json voice/`

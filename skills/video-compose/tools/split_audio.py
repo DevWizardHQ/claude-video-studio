@@ -22,6 +22,9 @@ gaps = [(s, e) for s, e in zip(starts, ends)]
 speech_start = gaps[0][1] if gaps and gaps[0][0] < 0.05 else 0.0
 speech_end = gaps[-1][0] if gaps and gaps[-1][1] >= total - 0.05 else total
 cands = [((s + e) / 2, e - s) for s, e in gaps if speech_start + 0.15 < (s + e) / 2 < speech_end - 0.15]
+LINE_GAP = float(sys.argv[6]) if len(sys.argv) > 6 else 0.9
+long_gaps = [c for c in cands if c[1] >= LINE_GAP]
+exact = len(long_gaps) == len(lines) - 1
 
 terminal = [bool(re.search(r"[।!?.]$", p["text"].strip())) for p in lines]
 weights = [max(1, len(re.sub(r"[\s,।!?.]", "", p["text"]))) for p in lines]
@@ -32,6 +35,8 @@ for w in weights[:-1]:
 span = speech_end - speech_start
 expected = [speech_start + span * x / sum(weights) for x in cum]
 
+if exact:
+    cands = long_gaps
 UNMATCHED = 1.2
 n, m = len(expected), len(cands)
 INF = float("inf")
@@ -49,7 +54,7 @@ for k in range(n):
             mid, gap = cands[j]
             bonus = 1.6 if terminal[k] else 0.5
             cost = abs(mid - expected[k]) * 0.6 - bonus * min(gap, 1.0)
-            if abs(mid - expected[k]) > 3.0:
+            if abs(mid - expected[k]) > (1e9 if exact else 3.0):
                 continue
             if f[k][u] + cost < f[k + 1][j + 1]:
                 f[k + 1][j + 1] = f[k][u] + cost
@@ -90,4 +95,5 @@ for idx, p in enumerate(lines):
     result.append({**p, "s": round(s, 3), "e": round(e, 3)})
 (out_dir / "phrases.json").write_text(json.dumps(result, ensure_ascii=False, indent=1))
 matched = sum(1 for x in chosen if x is not None)
-print(f"{len(lines)} lines, {matched}/{n} breaks matched to silences, {n - matched} interpolated")
+mode = "exact: one long silence per line break" if exact else "approximate: pauses were not clearly separated"
+print(f"{len(lines)} lines, {matched}/{n} breaks matched, {n - matched} interpolated ({mode})")

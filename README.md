@@ -13,7 +13,7 @@ Works for any product and any language. Built and proven on Bangla tutorials.
 | `video-discovery` | Crawl a URL or read screenshots, list every screen, interview you per screen. |
 | `video-story` | Story, hook, arc and scene map for approval before the script. |
 | `video-brief-interview` | Interviews you with options and a recommendation, writes `brief.md`. |
-| `video-script-review` | Full reviewable script, then speaker lines, voice brief and glossary. Edge-case checklist (resend OTP, support, failures). |
+| `video-script-review` | Full reviewable script, then speaker lines and an `audio.md` with one paste-ready block per TTS tool (Google AI Studio, Google Cloud SSML, generic), so you generate one audio file. Edge-case checklist (resend OTP, support, failures). |
 | `ui-capture` | Playwright runner: cursor, ripple, highlight, per-field blur masking, OTP waits, cue-based sync to your audio. |
 | `video-compose` | Audio split, cut and mix tools plus a Remotion template: browser frame, zoom, step chips, quiet captions, tooltips. |
 | `video-craft` | Professional guides: scriptwriting, storytelling, choreography, cinematography, motion, voice, type, color, pacing, sound, accessibility, QA. |

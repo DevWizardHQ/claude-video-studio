@@ -27,7 +27,7 @@ One workflow for every video. The order never changes and no step is skipped.
 2. Interview with AskUserQuestion. Options carry a recommendation, the recommended option first and labelled `(Recommended)`. Never ask what the product or the repo already answers.
 3. Story before script, script before audio, audio before recording. Every edit restarts only the gate it touches.
 4. Show whole documents for review, not summaries.
-5. The user produces the voice (own recording or a TTS tool). Hand over the speaker-line sheet, ask for one audio file per line, then sync to those files.
+5. The user produces the voice (own recording or a TTS tool). Hand over `audio.md` with paste-ready blocks, ask for one audio file, split it by the long pauses, and sync to the pieces. Never ask for line-by-line pasting.
 6. Cover edge cases from `video-script-review/references/edge-cases.md` as scenes: resend, failure, support, recovery.
 7. Ask whether the viewer needs burned-in text, sidecar subtitles, tooltips, and which frame and animation style. Offer `video-compose/references/style-catalog.md`; do not decide silently.
 8. Mask personal data in the page or image itself before recording. Never rely on editing it out later.

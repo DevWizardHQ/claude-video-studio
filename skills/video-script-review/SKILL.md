@@ -29,7 +29,9 @@ Only after approval. Use `references/speaker-lines-template.md`.
 - Split narration into speaker lines `L01`, `L02`, ... one idea each, at most two short sentences.
 - Add delivery notes per line (tone, pause, emphasis) and a pronunciation glossary (OTP, KYC, brand names, numbers).
 - Give the voice brief: voice, pace, style prompt, file format (wav or mp3, mono ok), naming `L01.wav`, `L02.wav`.
-- Ask for one file per line. After the files arrive run `video-compose/tools/prepare_lines.py speaker-lines.md audio/ voice/`. If the user supplies one long file instead, split it with `split_audio.py` and state the confidence honestly.
+- Generate `audio.md` with `python3 ${CLAUDE_PLUGIN_ROOT}/skills/video-script-review/tools/make_audio_md.py speaker-lines.md audio.md`. It holds one paste-ready block per tool (Google AI Studio style box plus script, Google Cloud SSML with 2 s breaks, generic text) so the user pastes once and generates **one audio file**. Never hand the user a long list of lines to paste one by one.
+- One file is the default: `audio/full.wav`. After it arrives run `python3 ${CLAUDE_PLUGIN_ROOT}/skills/video-compose/tools/split_from_sheet.py speaker-lines.md audio/full.wav voice/` and report whether the split was exact (one long silence per line break) or approximate. If approximate, ask for a regenerate with longer pauses.
+- Per-line files (`L01.wav` ...) remain supported: `prepare_lines.py speaker-lines.md audio/ voice/`.
 - Re-record only the lines that change when the script is edited later.
 - The sheet table is machine-read: keep the header `| ID | Scene | Text | Caption | Delivery |` and one row per line.
 

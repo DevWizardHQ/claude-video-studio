@@ -7,7 +7,8 @@
 - Pauses: comma 0.25s, sentence 0.5s, scene change 0.8s.
 
 ## Recording lines
-- One file per line, `L01.wav`, mono or stereo, 44.1 or 48 kHz, no music, no reverb.
+- One file for the whole script is the default: paragraphs separated by 2 s of silence, so the pieces can be cut exactly. Per-line files are the fallback.
+- Mono or stereo, 44.1 or 48 kHz, no music, no reverb.
 - Leave 0.2s of silence at the head and 0.3s at the tail of each file.
 - Same room, same mic distance, same session for a whole video; re-record whole lines, not words.
 - Keep a take log: line, take number, chosen.
