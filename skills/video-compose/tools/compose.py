@@ -20,28 +20,42 @@ shift, end = data["shift"], data["end"]
 KEEP, HOLD, LEAD = 1.0, 4.0, 0.4
 
 cuts = sorted(data["cuts"], key=lambda c: c["ws"])
-segments, cursor, removed = [], 0.0, []
+ops = []
 for c in cuts:
     keep = min(KEEP, c["we"] - c["ws"])
-    segments.append((cursor, c["ws"] + keep))
-    removed.append((c["ws"] + keep, c["we"], c["we"] - c["ws"] - keep))
-    cursor = c["we"]
-segments.append((cursor, end))
+    ops.append(("cut", c["ws"] + keep, c["we"], 1.0))
+for sp in topic.get("speed", []):
+    ops.append(("speed", float(sp["start"]), float(sp["end"]), float(sp["factor"])))
+auto = topic.get("autoSpeed")
+if auto:
+    for m in data.get("marks", []):
+        if m["kind"] == auto.get("kind", "code-typing") and m["b"] - m["a"] > 2.0:
+            ops.append(("speed", m["a"], m["b"], float(auto.get("factor", 2.4))))
+ops.sort(key=lambda o: o[1])
+segments, cursor = [], 0.0
+for kind, a, b, f in ops:
+    if a > cursor:
+        segments.append((cursor, a, 1.0))
+    if kind == "speed":
+        segments.append((a, b, f))
+    cursor = b
+segments.append((cursor, end, 1.0))
 
 
 def gmap(t):
     back = 0.0
-    for a, b, r in removed:
+    for kind, a, b, f in ops:
+        saved = (b - a) if kind == "cut" else (b - a) * (1 - 1 / f)
         if t >= b:
-            back += r
+            back += saved
         elif t > a:
-            return a - back
+            return (a - back) if kind == "cut" else (a - back) + (t - a) / f
     return t - back
 
 
 parts = []
-for k, (a, b) in enumerate(segments):
-    parts.append(f"[0:v]trim={shift + a:.3f}:{shift + b:.3f},setpts=PTS-STARTPTS[v{k}]")
+for k, (a, b, f) in enumerate(segments):
+    parts.append(f"[0:v]trim={shift + a:.3f}:{shift + b:.3f},setpts=(PTS-STARTPTS)/{f}[v{k}]")
 concat = "".join(f"[v{k}]" for k in range(len(segments)))
 parts.append(f"{concat}concat=n={len(segments)}:v=1:a=0,fps=30,tpad=stop_mode=clone:stop_duration={HOLD}[v]")
 inner = out_dir / "inner.mp4"
@@ -75,6 +89,14 @@ for e in data["events"]:
 retime = {int(k): float(v) for k, v in topic.get("retime", {}).items()}
 for e in events:
     e["t"] += retime.get(e["i"], 0.0)
+marks_by_kind = {}
+for m in data.get("marks", []):
+    marks_by_kind.setdefault(m["kind"], []).append(m)
+for phrase, kind in topic.get("alignToMark", {}).items():
+    if marks_by_kind.get(kind):
+        for e in events:
+            if e["i"] == int(phrase):
+                e["t"] = gmap(marks_by_kind[kind][0]["a"])
 events.sort(key=lambda e: e["t"])
 
 absolute = [{**e, "t": e["t"] + intro} for e in events]

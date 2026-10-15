@@ -28,7 +28,7 @@ Every phrase in `phrases.json` plays, in order. A cue in `topic.json` attaches a
 
 Cue options: `do[]`, `land`, `callout {selector, text}`. A cue that has a callout does not trigger the focus zoom, so the tooltip stays visible.
 
-Top-level options: `setup` (actions run before recording starts, for example logging in), `startFromPhrase`, `introPhrases` / `outroPhrases` (lines spoken over the intro and outro cards, not played in the recording), `retime` (compose-time offsets in seconds per phrase), `stopAfter` (last phrase to run, for rehearsals), `continueOnError` (keep going after a failed cue; failures are listed in `events.json`). Without it, the first failed cue stops the run, and everything captured so far is still written.
+Top-level options: `setup` (actions run before recording starts, for example logging in), `startFromPhrase`, `introPhrases` / `outroPhrases` (lines spoken over the intro and outro cards, not played in the recording), `retime` (compose-time offsets in seconds per phrase), `autoSpeed` (compose speeds up the recorded code typing: `{"kind":"code-typing","factor":2.4}`), `alignToMark` (`{"13":"code-typing"}` starts that phrase when the typing starts), `stopAfter` (last phrase to run, for rehearsals), `continueOnError` (keep going after a failed cue; failures are listed in `events.json`). Without it, the first failed cue stops the run, and everything captured so far is still written.
 
 ## Masking (before recording)
 
@@ -36,6 +36,7 @@ Top-level options: `setup` (actions run before recording starts, for example log
 - `mask.fields`: per-selector rule when the value is not a known string (for example a generated username): `keepFirst` or `afterLast`.
 - Password inputs are never mirrored; they keep their native dots.
 - Review a frame of every scene that shows a masked value. A readable value is a failed take.
+- One-time codes (OTP) are not secrets once used or expired; do not mask them unless the brief says so, because viewers need to see the digits go in.
 
 ## User input (OTP and similar)
 

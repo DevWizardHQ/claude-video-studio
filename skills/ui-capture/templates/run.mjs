@@ -137,6 +137,7 @@ const moveTo = async (loc, fast = false) => {
 };
 
 const cuts = [];
+const marks = [];
 const run = {
   goto: async (u) => { await page.goto(u.startsWith('http') ? u : topic.base + u, { waitUntil: 'load', timeout: 60000 }); await sleep(1200); },
   click: async (sel, o) => {
@@ -200,6 +201,7 @@ const run = {
     const before = page.url();
     const moved = () => page.url() !== before;
     const typeCode = async () => {
+      const typingStart = now();
       const boxes = page.locator(a.into);
       if (a.mode === 'each') {
         for (let i = 0; i < code.length && !moved(); i++) {
@@ -214,6 +216,7 @@ const run = {
         await page.waitForURL((u) => u.toString() !== before, { timeout: 1500 }).catch(() => {});
         if (!moved()) { const b = first(a.submit); await moveTo(b); if (!moved()) await b.click(); }
       }
+      marks.push({ kind: 'code-typing', a: typingStart, b: now() });
       await sleep(3500);
     };
     await guard(typeCode(), 60000, 'enter code');
@@ -292,7 +295,8 @@ try {
   end = now() - shift + 0.3;
   await sleep(300);
   const shifted = cuts.map((c) => ({ ws: c.ws - shift, we: c.we - shift }));
-  writeFileSync(resolve(outDir, 'events.json'), JSON.stringify({ events, cuts: shifted, callouts, end, shift, failures }, null, 1));
+  const shiftedMarks = marks.map((m) => ({ ...m, a: m.a - shift, b: m.b - shift }));
+  writeFileSync(resolve(outDir, 'events.json'), JSON.stringify({ events, cuts: shifted, marks: shiftedMarks, callouts, end, shift, failures }, null, 1));
   let vid = '';
   try { vid = await guard(page.video().path(), 10000, 'video path'); } catch {}
   await guard(ctx.close(), 30000, 'context close').catch((e) => console.error(e.message));

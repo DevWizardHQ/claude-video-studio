@@ -31,7 +31,7 @@
   "style": {
     "frame": "macos",
     "background": "gradient",
-    "zoom": "focus",
+    "zoom": "none",
     "captions": "burned",
     "captionAnimation": "fade-up",
     "callouts": "tooltip",

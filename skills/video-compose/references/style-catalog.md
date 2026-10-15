@@ -47,8 +47,8 @@ Rule: at most one tooltip per scene, 6 words or fewer.
 
 | id | Status | Behaviour |
 |----|--------|-----------|
-| `focus` | ready | Smooth 1.15x zoom toward the active field, eases back when idle. |
-| `none` | ready | Static. Use when the UI is dense and must stay readable. |
+| `focus` | ready | Smooth 1.15x zoom toward the active field. Use only for dense UI, a few moments per video. Constant zoom tires viewers. |
+| `none` | ready | Static camera. Default: the cursor highlight and ripple already direct the eye. |
 | `pan-follow` | planned | Slow drift that follows the cursor. |
 
 ## Background and branding

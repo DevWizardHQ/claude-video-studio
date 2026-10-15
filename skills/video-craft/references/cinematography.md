@@ -9,12 +9,12 @@
 ## Camera moves (zoom and pan)
 | Move | When | Spec |
 |------|------|------|
-| Focus zoom | A field or button is the subject | 1.10 to 1.20x, 0.5s ease-in, hold, 0.7s ease-out |
+| Focus zoom | Only for tiny or dense UI, at most 2 or 3 moments per video. Not on every field | 1.10 to 1.20x, 0.5s ease-in, hold, 0.7s ease-out |
 | Chained pan | Next target within 1.6s | Keep zoom, pan between targets, no zoom-out |
 | Pull back | Result or overview | Return to 1.0x before a result is shown |
 | Static | Dense UI or a table | No move; use a tooltip |
 
-Rules: never zoom beyond 1.25x (text softens); never zoom and show a tooltip at once; never move the camera during typing.
+Rules: default is a static camera; constant zoom hurts the viewer experience. Never zoom beyond 1.25x (text softens); never zoom and show a tooltip at once; never move the camera during typing.
 
 ## Shot list for a form flow
 1. Establishing: whole page at 1.0x.

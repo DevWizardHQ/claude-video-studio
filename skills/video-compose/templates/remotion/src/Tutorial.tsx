@@ -150,7 +150,7 @@ const Window = ({ t, frame }: { t: number; frame: number }) => {
         </div>}
         <div style={{ position: "relative", width: WIN_W, height: VIEW_PX_H, overflow: "hidden", background: "#fff" }}>
           <div style={{ width: "100%", height: "100%", scale: String(zs), transformOrigin: `${(zx / VIEW_W) * 100}% ${(zy / VIEW_H) * 100}%` }}>
-            <OffthreadVideo src={staticFile("inner.mp4")} muted style={{ width: WIN_W, height: VIEW_PX_H, display: "block" }} />
+            <Sequence from={Math.round(INTRO * fps)} layout="none"><OffthreadVideo src={staticFile("inner.mp4")} muted style={{ width: WIN_W, height: VIEW_PX_H, display: "block" }} /></Sequence>
           </div>
           {S.callouts === "tooltip" && activeCallout ? <Tooltip c={activeCallout} t={t} /> : null}
           {group ? (
