@@ -59,6 +59,10 @@ const Mail = () => (
   <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#bfe8c6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M3 7l9 6 9-6" /></svg>
 );
 
+const Globe = () => (
+  <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#bfe8c6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9.5" /><path d="M2.5 12h19M12 2.5c2.6 2.8 4 6 4 9.5s-1.4 6.7-4 9.5c-2.6-2.8-4-6-4-9.5s1.4-6.7 4-9.5z" /></svg>
+);
+
 const Thanks = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -80,7 +84,9 @@ const Thanks = () => {
           </div>
         ))}
       </div>
-      <div style={{ ...rise(at(1.3)), marginTop: 36, fontFamily: "system-ui, sans-serif", fontWeight: 500, fontSize: 36, color: brand.light }}>{brand.domain}</div>
+      <div style={{ ...rise(at(1.3)), marginTop: 40, display: "flex", alignItems: "center", gap: 14, fontFamily: "system-ui, sans-serif", fontWeight: 500, fontSize: 38, color: brand.light }}>
+        <Globe />{brand.domain}
+      </div>
     </AbsoluteFill>
   );
 };
