@@ -29,6 +29,11 @@ Run on the rendered MP4. Mark each pass or fail with a timestamp for failures.
 - [ ] No clicks at cuts, no clipped words.
 - [ ] Intelligible on phone speakers.
 
+## Bookends
+- [ ] Intro under 5s, hook answered later, voice starts within 0.5s.
+- [ ] Outro shows result, recap, CTA, support and brand, readable for 3s or more.
+- [ ] Support contacts match the product.
+
 ## Delivery
 - [ ] MP4 H.264, AAC, 1920x1080, 30 fps.
 - [ ] `.srt`, `.vtt`, thumbnail present.

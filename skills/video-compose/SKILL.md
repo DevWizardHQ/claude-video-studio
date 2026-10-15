@@ -40,7 +40,7 @@ Offer the choices in `references/style-catalog.md` before editing `brand.json` `
 
 ## Brand
 
-All colors, logo, intro and outro text, domain and step titles live in `brand.json`. Reuse the same file across a series so every video matches.
+All colors, logo, intro and outro text (`introHook`, `outroCta`, `supportLines`, `recapTitle`), domain and step titles live in `brand.json`. `style.intro` is `card`, `hook` or `none`; `style.outro` is `recap`, `card` or `none`. Follow `video-craft/references/intro-outro.md`. Reuse the same file across a series so every video matches.
 
 ## Licence note
 

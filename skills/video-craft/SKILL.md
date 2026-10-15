@@ -12,7 +12,7 @@ The guides below are the house standard. Load the ones that match the stage you 
 | Story | `storytelling.md` |
 | Script and speaker lines | `scriptwriting.md`, `voice-direction.md` |
 | Capture | `choreography.md`, `cinematography.md` |
-| Compose | `animation-principles.md`, `typography-and-captions.md`, `color-and-brand.md`, `editing-and-pacing.md`, `sound-design.md` |
+| Compose | `intro-outro.md`, `animation-principles.md`, `typography-and-captions.md`, `color-and-brand.md`, `editing-and-pacing.md`, `sound-design.md` |
 | QA | `accessibility.md`, `qa-checklist.md` |
 
 ## Standing principles

@@ -7,7 +7,8 @@
 - Voice source:
 - Aspect and length:
 - Brand: logo, colors, font, URL:
-- Intro / outro:
+- Intro style and hook line:
+- Outro style, CTA text, support contacts (confirmed):
 - Environment and test account:
 - Masking rules:
 - Flow in scope:

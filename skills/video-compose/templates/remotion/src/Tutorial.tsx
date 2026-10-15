@@ -5,6 +5,7 @@ import {
 } from "remotion";
 import meta from "../public/meta.json";
 import brand from "../public/brand.json";
+import { Intro, Outro } from "./Bookends";
 
 export const FPS = 30;
 
@@ -169,7 +170,8 @@ const Hud = ({ t, frame }: { t: number; frame: number }) => {
   const { fps } = useVideoConfig();
   const total = brand.stepTitles.length;
   const step = Math.min(total - 1, Math.max(0, stepStarts.reduce((acc, s, i) => (s !== undefined && t >= s ? i : acc), 0)));
-  const p = interpolate(frame, [Math.round(INTRO * fps) - 6, Math.round(INTRO * fps) + 14], [0, 1], { ...clamp, easing: ease });
+  const outStart = Math.round((INTRO + meta.innerDur) * fps);
+  const p = interpolate(frame, [Math.round(INTRO * fps) - 6, Math.round(INTRO * fps) + 14], [0, 1], { ...clamp, easing: ease }) * interpolate(frame, [outStart - 6, outStart + 10], [1, 0], clamp);
   const chip = spring({ frame: frame - Math.round(((stepStarts[step] ?? 0) + INTRO) * fps), fps, config: { damping: 18, stiffness: 160 } });
   return (
     <>
@@ -190,22 +192,6 @@ const Hud = ({ t, frame }: { t: number; frame: number }) => {
   );
 };
 
-const Card = ({ title, subtitle, fadeOut }: { title: string; subtitle?: string; fadeOut?: boolean }) => {
-  const frame = useCurrentFrame();
-  const { fps, durationInFrames } = useVideoConfig();
-  const pop = spring({ frame, fps, config: { damping: 20, stiffness: 110 } });
-  const out = fadeOut ? interpolate(frame, [durationInFrames - 14, durationInFrames], [1, 0], clamp) : 1;
-  return (
-    <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", opacity: out * pop, translate: `0 ${interpolate(pop, [0, 1], [26, 0])}px` }}>
-      <div style={{ background: "#fff", borderRadius: 28, padding: "20px 36px", marginBottom: 44 }}>
-        <Img src={staticFile(brand.logo)} style={{ height: 96 }} />
-      </div>
-      <div style={{ fontFamily: FONT, fontWeight: 600, fontSize: 80, color: "#fff", textAlign: "center", lineHeight: 1.3 }}>{title}</div>
-      {subtitle ? <div style={{ fontFamily: FONT, fontWeight: 400, fontSize: 38, color: brand.light, marginTop: 18 }}>{subtitle}</div> : null}
-    </AbsoluteFill>
-  );
-};
-
 export const Tutorial = () => {
   useFont();
   const frame = useCurrentFrame();
@@ -215,12 +201,12 @@ export const Tutorial = () => {
   return (
     <AbsoluteFill style={{ background: S.background === "solid" ? brand.dark : `linear-gradient(135deg, ${brand.dark}, ${brand.mid} 60%, ${brand.primary})`, fontFamily: FONT }}>
       <AbsoluteFill style={{ background: `radial-gradient(900px 600px at ${30 + Math.sin(drift / 4) * 8}% ${20 + Math.cos(drift / 5) * 8}%, rgba(255,255,255,.14), transparent 70%)` }} />
-      {INTRO > 0 ? <Sequence from={0} durationInFrames={Math.round(INTRO * fps)}><Card title={brand.introTitle} subtitle={brand.introSubtitle} fadeOut /></Sequence> : null}
+      {INTRO > 0 ? <Sequence from={0} durationInFrames={Math.round(INTRO * fps)}><Intro /></Sequence> : null}
       <Window t={t} frame={frame} />
       <Hud t={t} frame={frame} />
       {END > 0 ? (
         <Sequence from={Math.round((INTRO + meta.innerDur) * fps)} durationInFrames={Math.round(END * fps)}>
-          <Card title={brand.outroTitle} subtitle={brand.domain} />
+          <Outro />
         </Sequence>
       ) : null}
       <Sequence from={Math.round(INTRO * fps)}><Audio src={staticFile("narration.wav")} /></Sequence>

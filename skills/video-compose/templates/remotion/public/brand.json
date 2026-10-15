@@ -22,7 +22,7 @@
     "height": 720
   },
   "introSeconds": 3,
-  "outroSeconds": 3,
+  "outroSeconds": 6,
   "caption": {
     "size": 30,
     "weight": 400
@@ -38,6 +38,13 @@
     "progress": "bar",
     "stepChip": true,
     "intro": "card",
-    "outro": "card"
-  }
+    "outro": "recap"
+  },
+  "introHook": "",
+  "recapTitle": "Recap",
+  "outroCta": "Next step: call to action",
+  "supportLines": [
+    "Phone: 000000000",
+    "Email: support@example.com"
+  ]
 }

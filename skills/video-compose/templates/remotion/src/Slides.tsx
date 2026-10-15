@@ -6,6 +6,7 @@ import {
 import meta from "../public/meta.json";
 import scenesData from "../public/scenes.json";
 import brand from "../public/brand.json";
+import { Intro, Outro } from "./Bookends";
 
 const S = brand.style;
 const FONT = "'BrandFont', 'Noto Sans Bengali', system-ui, sans-serif";
@@ -133,7 +134,8 @@ const Hud = ({ t, frame }: { t: number; frame: number }) => {
   const total = brand.stepTitles.length;
   const sc = scenes[sceneIndex(t)];
   const step = Math.min(total - 1, sc.step);
-  const p = interpolate(frame, [Math.round(INTRO * fps) - 6, Math.round(INTRO * fps) + 14], [0, 1], { ...clamp, easing: ease });
+  const outStart = Math.round((INTRO + meta.innerDur) * fps);
+  const p = interpolate(frame, [Math.round(INTRO * fps) - 6, Math.round(INTRO * fps) + 14], [0, 1], { ...clamp, easing: ease }) * interpolate(frame, [outStart - 6, outStart + 10], [1, 0], clamp);
   return (
     <>
       <div style={{ position: "absolute", left: WIN_X, top: 28, opacity: p, display: "flex", alignItems: "center", gap: 18 }}>
@@ -157,19 +159,6 @@ const Hud = ({ t, frame }: { t: number; frame: number }) => {
   );
 };
 
-const Card = ({ title, subtitle }: { title: string; subtitle?: string }) => {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const pop = spring({ frame, fps, config: { damping: 20, stiffness: 110 } });
-  return (
-    <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", opacity: pop }}>
-      <div style={{ background: "#fff", borderRadius: 28, padding: "20px 36px", marginBottom: 44 }}><Img src={staticFile(brand.logo)} style={{ height: 96 }} /></div>
-      <div style={{ fontFamily: FONT, fontWeight: 600, fontSize: 80, color: "#fff", textAlign: "center" }}>{title}</div>
-      {subtitle ? <div style={{ fontFamily: FONT, fontSize: 38, color: brand.light, marginTop: 18 }}>{subtitle}</div> : null}
-    </AbsoluteFill>
-  );
-};
-
 export const Slides = () => {
   useFont();
   const frame = useCurrentFrame();
@@ -177,10 +166,10 @@ export const Slides = () => {
   const t = Math.max(0, frame / fps - INTRO);
   return (
     <AbsoluteFill style={{ background: S.background === "solid" ? brand.dark : `linear-gradient(135deg, ${brand.dark}, ${brand.mid} 60%, ${brand.primary})` }}>
-      {INTRO > 0 ? <Sequence from={0} durationInFrames={Math.round(INTRO * fps)}><Card title={brand.introTitle} subtitle={brand.introSubtitle} /></Sequence> : null}
+      {INTRO > 0 ? <Sequence from={0} durationInFrames={Math.round(INTRO * fps)}><Intro /></Sequence> : null}
       <Stage t={t} frame={frame} />
       <Hud t={t} frame={frame} />
-      {END > 0 ? <Sequence from={Math.round((INTRO + meta.innerDur) * fps)} durationInFrames={Math.round(END * fps)}><Card title={brand.outroTitle} subtitle={brand.domain} /></Sequence> : null}
+      {END > 0 ? <Sequence from={Math.round((INTRO + meta.innerDur) * fps)} durationInFrames={Math.round(END * fps)}><Outro /></Sequence> : null}
       <Sequence from={Math.round(INTRO * fps)}><Audio src={staticFile("narration.wav")} /></Sequence>
     </AbsoluteFill>
   );

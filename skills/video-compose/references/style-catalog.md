@@ -60,8 +60,14 @@ Rule: at most one tooltip per scene, 6 words or fewer.
 | background | `mesh`, `particles` | planned |
 | progress | `bar` / `none` | ready |
 | step chip | `true` / `false` | ready ("Step 3/10 + title") |
-| intro / outro | `card`, `none` | ready (logo, title, subtitle; thank-you and domain) |
+| intro | `card` | ready (logo, title, subtitle, 3s) |
+| intro | `hook` | ready (hook line then title card, 4 to 5s; set `introHook`) |
+| intro | `none` | ready |
 | intro | `logo-reveal`, `kinetic-title` | planned |
+| outro | `recap` | ready (result, step checklist, CTA, support lines, domain; set `outroCta`, `supportLines`, `recapTitle`) |
+| outro | `card` | ready (thank-you and domain) |
+| outro | `none` | ready |
+| outro | `next-video` | planned |
 
 ## Aspect ratio
 

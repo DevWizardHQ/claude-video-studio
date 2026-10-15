@@ -18,7 +18,8 @@ Ask in this order. Rounds of 3 to 4 questions. Recommendation first.
 - **Aspect**: 16:9 for web and YouTube (Recommended, ready) / 9:16 for Shorts and Reels (planned: needs a vertical composition) / 1:1 for feeds (planned).
 - **Length**: Under 60s / 60 to 120s (Recommended for one flow) / 2 to 4 min.
 - **Brand**: Logo file, primary color, font, URL to show. Use the product site when not given.
-- **Intro and outro**: Short title card plus thank-you card (Recommended) / None / Custom.
+- **Intro**: Hook line then title (Recommended for public tutorials) / Title card / None. Ask for the hook line or draft two options from the story.
+- **Outro**: Recap checklist with call to action and support (Recommended for tutorials) / Thank-you card / None. Ask for the CTA text and confirm every support contact.
 
 ## Round 4 - content depth
 - **Flow coverage**: Happy path only / Happy path plus edge cases (Recommended).
