@@ -37,14 +37,26 @@ for n, sc in enumerate(slides["scenes"]):
         urls.append({"t": t0, "url": sc["url"]})
     t = t1
 
+inner = t + HOLD
+absolute = [{**e, "t": e["t"] + intro} for e in events]
+cursor = 0.4
+for i in slides.get("introPhrases", []):
+    absolute.append({"i": i, "t": cursor, "dur": dur(i), "text": phrases[i].get("caption") or phrases[i]["text"], "step": phrases[i].get("step", 0)})
+    cursor += dur(i) + 0.15
+cursor = intro + inner + 0.4
+for i in slides.get("outroPhrases", []):
+    absolute.append({"i": i, "t": cursor, "dur": dur(i), "text": phrases[i].get("caption") or phrases[i]["text"], "step": phrases[i].get("step", 0)})
+    cursor += dur(i) + 0.15
+absolute.sort(key=lambda e: e["t"])
+
 inputs, filters, labels = [], [], []
-for k, e in enumerate(events):
+for k, e in enumerate(absolute):
     inputs += ["-i", str(voice_dir / f"ph{e['i']}.wav")]
     filters.append(f"[{k}:a]adelay={int(e['t'] * 1000)}:all=1[s{k}]")
     labels.append(f"[s{k}]")
 filters.append(
     "".join(labels)
-    + f"amix=inputs={len(events)}:normalize=0:duration=longest,highpass=f=70,"
+    + f"amix=inputs={len(absolute)}:normalize=0:duration=longest,highpass=f=70,"
     "acompressor=threshold=-20dB:ratio=2.5:attack=8:release=120,loudnorm=I=-15:TP=-1.2:LRA=7,"
     "aformat=sample_rates=48000:channel_layouts=stereo[a]"
 )
@@ -53,8 +65,7 @@ subprocess.run(
      "-map", "[a]", str(out_dir / "narration.wav")],
     check=True,
 )
-inner = t + HOLD
-subs.write(events, out_dir, intro)
+subs.write(absolute, out_dir, 0.0)
 (out_dir / "meta.json").write_text(json.dumps(
     {"innerDur": inner, "events": events, "callouts": callouts, "urls": urls}, ensure_ascii=False, indent=1))
 (out_dir / "scenes.json").write_text(json.dumps({"size": slides["size"], "scenes": scenes}, indent=1))

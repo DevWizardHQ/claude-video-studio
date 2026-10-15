@@ -209,7 +209,7 @@ export const Tutorial = () => {
           <Outro />
         </Sequence>
       ) : null}
-      <Sequence from={Math.round(INTRO * fps)}><Audio src={staticFile("narration.wav")} /></Sequence>
+      <Audio src={staticFile("narration.wav")} />
     </AbsoluteFill>
   );
 };

@@ -16,6 +16,10 @@ mkdirSync(outDir, { recursive: true });
 const sub = (s) => s.replace(/\$\{env:(\w+)\}/g, (_, k) => process.env[k] ?? '').replace(/\$\{(\w+)\}/g, (_, k) => topic.vars?.[k] ?? '');
 const duration = (f) => parseFloat(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', f]).toString());
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const guard = (p, ms, label) => {
+  let t;
+  return Promise.race([p, new Promise((_, rej) => { t = setTimeout(() => rej(new Error(`${label} timed out`)), ms); })]).finally(() => clearTimeout(t));
+};
 
 const BN = '০১২৩৪৫৬৭৮৯';
 const toBn = (s) => s.replace(/\d/g, (d) => BN[d]);
@@ -117,6 +121,7 @@ const browser = await chromium.launch();
 const ctx = await browser.newContext({ viewport, recordVideo: { dir: outDir, size: viewport }, locale: topic.locale ?? 'en-US' });
 await ctx.addInitScript(initScript);
 const page = await ctx.newPage();
+page.setDefaultTimeout(20000);
 const t0 = Date.now();
 const now = () => (Date.now() - t0) / 1000;
 let lastBox = null;
@@ -127,7 +132,7 @@ const moveTo = async (loc, fast = false) => {
   await sleep(fast ? 350 : 700);
   const b = await loc.boundingBox();
   lastBox = b;
-  await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2, { steps: fast ? 14 : 26 });
+  await guard(page.mouse.move(b.x + b.width / 2, b.y + b.height / 2, { steps: fast ? 14 : 26 }), 8000, 'mouse.move');
   await sleep(fast ? 120 : 250);
 };
 
@@ -138,10 +143,16 @@ const run = {
     const l = first(sel);
     await moveTo(l);
     if (o.dryRun) { await page.evaluate(() => window.__rip()); return; }
-    await l.click();
+    await l.click({ timeout: o.timeout ?? 30000 });
   },
   hover: async (sel) => { await moveTo(first(sel)); },
-  type: async ([sel, v]) => { const l = first(sel); await moveTo(l); await l.click(); await l.pressSequentially(sub(v), { delay: 85 }); },
+  type: async ([sel, v], o = {}) => {
+    const l = first(sel);
+    await moveTo(l);
+    await l.click();
+    if (o.clear) await l.fill('');
+    await l.pressSequentially(sub(v), { delay: 85 });
+  },
   press: async (key) => { await page.keyboard.press(key); },
   highlight: async (sel) => {
     await page.evaluate(() => document.querySelectorAll('.__hl').forEach((e) => e.classList.remove('__hl')));
@@ -159,6 +170,18 @@ const run = {
     await o.waitFor({ timeout: 15000 });
     await moveTo(o, true); await o.click(); await sleep(250);
   },
+  waitEnabled: async (a) => {
+    const l = first(a.selector);
+    const ws = now();
+    const limit = (a.timeoutSeconds ?? 120) * 1000;
+    const began = Date.now();
+    const ready = () => l.evaluate((e) => !e.disabled && e.getAttribute('aria-disabled') !== 'true' && !/disabled/.test(e.className));
+    while (!(await l.isVisible()) || !(await ready())) {
+      if (Date.now() - began > limit) throw new Error(`timed out waiting for ${a.selector}`);
+      await sleep(500);
+    }
+    if (now() - ws > 1.5) cuts.push({ ws, we: now() });
+  },
   askUser: async (a) => {
     const f = resolve(root, a.file);
     mkdirSync(dirname(f), { recursive: true });
@@ -174,13 +197,26 @@ const run = {
     const code = readFileSync(f, 'utf8').trim();
     unlinkSync(f);
     cuts.push({ ws, we: now() });
-    const boxes = page.locator(a.into);
-    if (a.mode === 'each') {
-      for (let i = 0; i < code.length; i++) { await moveTo(boxes.nth(i), true); await boxes.nth(i).fill(code[i]); }
-    } else {
-      const l = boxes.first(); await moveTo(l); await l.click(); await l.pressSequentially(code, { delay: 120 });
-    }
-    if (a.submit) { const b = first(a.submit); await moveTo(b); await b.click(); await sleep(3500); }
+    const before = page.url();
+    const moved = () => page.url() !== before;
+    const typeCode = async () => {
+      const boxes = page.locator(a.into);
+      if (a.mode === 'each') {
+        for (let i = 0; i < code.length && !moved(); i++) {
+          await moveTo(boxes.nth(i), true);
+          if (moved()) break;
+          await boxes.nth(i).fill(code[i]);
+        }
+      } else {
+        const l = boxes.first(); await moveTo(l); await l.click(); await l.pressSequentially(code, { delay: 120 });
+      }
+      if (a.submit && !moved()) {
+        await page.waitForURL((u) => u.toString() !== before, { timeout: 1500 }).catch(() => {});
+        if (!moved()) { const b = first(a.submit); await moveTo(b); if (!moved()) await b.click(); }
+      }
+      await sleep(3500);
+    };
+    await guard(typeCode(), 60000, 'enter code');
   },
 };
 
@@ -194,24 +230,38 @@ const EST = 1.7;
 
 try {
   if (topic.start) await run.goto(topic.start);
+  for (const a of topic.setup ?? []) {
+    const { opts = {}, ...rest } = a;
+    const [k] = Object.keys(rest);
+    await run[k](rest[k], opts);
+  }
   await page.evaluate(() => window.scrollTo(0, 0));
   shift = now();
 
   for (const ph of [...phrases].sort((a, b) => a.i - b.i)) {
     if (topic.stopAfter !== undefined && ph.i > topic.stopAfter) break;
+    if (topic.startFromPhrase !== undefined && ph.i < topic.startFromPhrase) continue;
     const audio = resolve(voiceDir, `ph${ph.i}.wav`);
     if (!existsSync(audio)) throw new Error(`missing audio ${audio}`);
+    if ((topic.introPhrases ?? []).includes(ph.i) || (topic.outroPhrases ?? []).includes(ph.i)) continue;
     const cue = cues.get(ph.i) ?? { i: ph.i, do: [] };
     const d = duration(audio);
     const start = now();
     lastBox = null;
     const ev = { i: ph.i, t: start - shift, dur: d };
     events.push(ev);
-    try {
+    const hasAsk = (cue.do ?? []).some((a) => a.askUser);
+    const limit = (hasAsk ? (cue.do.find((a) => a.askUser).askUser.timeoutSeconds ?? 900) + 120 : 90) * 1000;
+    console.log(`cue ${ph.i} start`);
+    const body = async () => {
       if (cue.land === 'end') await sleep(Math.max(0, d - EST) * 1000);
       for (const a of cue.do ?? []) {
         const { opts = {}, ...rest } = a;
         const [k] = Object.keys(rest);
+        if (opts.landEnd) {
+          const wait = start + d - EST - now();
+          if (wait > 0) await sleep(wait * 1000);
+        }
         await run[k](rest[k], opts);
       }
       if (lastBox && !cue.callout) ev.focus = lastBox;
@@ -220,11 +270,21 @@ try {
         const t1 = Math.max(now() - shift + 1.5, start - shift + d + 0.3);
         if (box) callouts.push({ t0: now() - shift, t1, box, text: cue.callout.text });
       }
+    };
+    try {
+      let timer;
+      await Promise.race([
+        body(),
+        new Promise((_, rej) => { timer = setTimeout(() => rej(new Error(`cue ${ph.i} timed out`)), limit); }),
+      ]);
+      clearTimeout(timer);
+      console.log(`cue ${ph.i} done`);
     } catch (e) {
       failures.push({ i: ph.i, error: String(e.message).slice(0, 200) });
       console.error(`cue ${ph.i} failed: ${e.message}`);
       if (!topic.continueOnError) throw e;
     }
+    writeFileSync(resolve(outDir, 'events.partial.json'), JSON.stringify({ events, cuts, callouts, failures, shift }, null, 1));
     const rest = start + d + 0.1 - now();
     if (rest > 0) await sleep(rest * 1000);
   }
@@ -234,9 +294,9 @@ try {
   const shifted = cuts.map((c) => ({ ws: c.ws - shift, we: c.we - shift }));
   writeFileSync(resolve(outDir, 'events.json'), JSON.stringify({ events, cuts: shifted, callouts, end, shift, failures }, null, 1));
   let vid = '';
-  try { vid = await page.video().path(); } catch {}
-  await ctx.close();
-  await browser.close();
+  try { vid = await guard(page.video().path(), 10000, 'video path'); } catch {}
+  await guard(ctx.close(), 30000, 'context close').catch((e) => console.error(e.message));
+  await guard(browser.close(), 15000, 'browser close').catch((e) => console.error(e.message));
   if (vid) writeFileSync(resolve(outDir, 'raw.path'), vid);
   console.log(failures.length ? `DONE with ${failures.length} failure(s)` : `RAW ${vid}`);
 }

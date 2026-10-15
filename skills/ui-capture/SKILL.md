@@ -28,7 +28,7 @@ Every phrase in `phrases.json` plays, in order. A cue in `topic.json` attaches a
 
 Cue options: `do[]`, `land`, `callout {selector, text}`. A cue that has a callout does not trigger the focus zoom, so the tooltip stays visible.
 
-Top-level options: `stopAfter` (last phrase to run, for rehearsals), `continueOnError` (keep going after a failed cue; failures are listed in `events.json`). Without it, the first failed cue stops the run, and everything captured so far is still written.
+Top-level options: `setup` (actions run before recording starts, for example logging in), `startFromPhrase`, `introPhrases` / `outroPhrases` (lines spoken over the intro and outro cards, not played in the recording), `retime` (compose-time offsets in seconds per phrase), `stopAfter` (last phrase to run, for rehearsals), `continueOnError` (keep going after a failed cue; failures are listed in `events.json`). Without it, the first failed cue stops the run, and everything captured so far is still written.
 
 ## Masking (before recording)
 
@@ -44,6 +44,13 @@ Top-level options: `stopAfter` (last phrase to run, for rehearsals), `continueOn
 ## Verify
 
 Extract frames at each cue start and a mid-typing frame; open them. Reject the take if a masked value is readable, a click misses, or a validation error shows unintentionally.
+
+## Safety notes from real runs
+
+- Never leave a stale runner alive: a second process polling the same `inputs/` file steals the code. List with `ps` and kill by PID before each take.
+- The OTP can expire in minutes. Have the user read the newest code from the SMS or database and send it at once; ask for all 6 digits.
+- Repeated login attempts are throttled; do not probe an account in a loop.
+- Every action and every cue has a timeout and the run always writes `events.json` and the video, so a stuck step becomes a logged failure.
 
 ## Account side effects
 

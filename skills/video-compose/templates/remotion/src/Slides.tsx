@@ -170,7 +170,7 @@ export const Slides = () => {
       <Stage t={t} frame={frame} />
       <Hud t={t} frame={frame} />
       {END > 0 ? <Sequence from={Math.round((INTRO + meta.innerDur) * fps)} durationInFrames={Math.round(END * fps)}><Outro /></Sequence> : null}
-      <Sequence from={Math.round(INTRO * fps)}><Audio src={staticFile("narration.wav")} /></Sequence>
+      <Audio src={staticFile("narration.wav")} />
     </AbsoluteFill>
   );
 };
