@@ -11,11 +11,11 @@ Ask in this order. Rounds of 3 to 4 questions. Recommendation first.
 ## Round 2 - language and voice
 - **Language**: Bangla / English / Bangla with English UI terms kept (Recommended when the UI is mixed).
 - **Register**: Warm and conversational "আপনি" (Recommended) / Formal / Playful.
-- **Voice source**: User's own recording (most natural) / TTS from a tool the user runs (Recommended when no studio) / Claude-run TTS with an API key.
+- **Voice source**: User's own recording (most natural) / TTS from a tool the user runs (Recommended when no studio). The user always produces the audio; Claude does not synthesize it.
 - **Pace**: Medium-slow (Recommended for tutorials) / Normal.
 
 ## Round 3 - format and brand
-- **Aspect**: 16:9 for web and YouTube (Recommended) / 9:16 for Shorts and Reels / 1:1 for feeds / Several.
+- **Aspect**: 16:9 for web and YouTube (Recommended, ready) / 9:16 for Shorts and Reels (planned: needs a vertical composition) / 1:1 for feeds (planned).
 - **Length**: Under 60s / 60 to 120s (Recommended for one flow) / 2 to 4 min.
 - **Brand**: Logo file, primary color, font, URL to show. Use the product site when not given.
 - **Intro and outro**: Short title card plus thank-you card (Recommended) / None / Custom.
@@ -28,7 +28,7 @@ Ask in this order. Rounds of 3 to 4 questions. Recommendation first.
 
 ## Round 5 - safety and delivery
 - **Environment**: Live production / Staging / Local. Is creating real records or sending real SMS allowed.
-- **Masking**: Values that must never show. Method: blur (Recommended) / dots / replace.
+- **Masking**: Values that must never show. Method: blur (Recommended) / dots. Passwords always stay as native dots.
 - **Test account**: Use user-provided data or generate.
 - **Deliverables** (multi-select): MP4 (always) / SRT captions / thumbnail PNG / vertical cut / per-step GIFs.
 - **Review rounds**: Script, speaker lines, stills, final (Recommended: all four).

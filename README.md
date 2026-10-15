@@ -16,7 +16,8 @@ Works for any product and any language. Built and proven on Bangla tutorials.
 | `video-script-review` | Full reviewable script, then speaker lines, voice brief and glossary. Edge-case checklist (resend OTP, support, failures). |
 | `ui-capture` | Playwright runner: cursor, ripple, highlight, per-field blur masking, OTP waits, cue-based sync to your audio. |
 | `video-compose` | Audio split, cut and mix tools plus a Remotion template: browser frame, zoom, step chips, quiet captions, tooltips. |
-| `video-director`, `video-qa-reviewer` | Agents: run the workflow, then review the render. |
+| `video-craft` | Professional guides: scriptwriting, storytelling, choreography, cinematography, motion, voice, type, color, pacing, sound, accessibility, QA. |
+| `video-director`, `video-qa-reviewer` | Agents: the director persona for non-interactive stages, and the render reviewer. |
 
 ## Install
 
@@ -25,8 +26,18 @@ Works for any product and any language. Built and proven on Bangla tutorials.
 /plugin install claude-video-studio@devwizard-video-studio
 ```
 
-Requirements: Node 20+, ffmpeg, Python 3, Playwright (`npm i playwright && npx playwright install chromium`).
+Requirements: Node 20+, ffmpeg 4.4+, Python 3.9+.
+
+## First run
+
+1. Create a folder for the video, `cd` into it.
+2. `npm i playwright && npx playwright install chromium` (capture and discovery scripts resolve Playwright from this folder).
+3. Ask Claude for the video; `video-studio` takes it from there.
+4. For rendering, Claude copies the Remotion template into `remotion/` and runs `npm i` there. Add `public/logo.png` and a Bengali-capable `public/font.ttf` (Noto Sans Bengali, OFL).
+
 The Remotion skills (`npx skills add remotion-dev/skills`) are recommended for Studio and render guidance.
+
+Do not commit `inputs/`, `discovery/`, storage-state files or recordings; see `.gitignore`.
 
 ## Workflow
 

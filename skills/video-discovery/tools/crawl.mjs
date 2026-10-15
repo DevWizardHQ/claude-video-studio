@@ -20,7 +20,14 @@ const ctx = await browser.newContext({
   storageState: stateArg && existsSync(stateArg) ? stateArg : undefined,
 });
 const page = await ctx.newPage();
-const skip = /\.(pdf|zip|png|jpe?g|gif|svg|webp|mp4|docx?|xlsx?)$|logout|signout|sign-out|delete|\/api\//i;
+if (stateArg) {
+  await page.addInitScript(() => {
+    const s = document.createElement('style');
+    s.textContent = 'input,textarea{filter:blur(5px)!important}';
+    document.addEventListener('DOMContentLoaded', () => document.head.appendChild(s));
+  });
+}
+const skip = /\.(pdf|zip|png|jpe?g|gif|svg|webp|mp4|docx?|xlsx?)$|log-?out|sign-?out|sign_out|log_out|delete|remove|cancel|unsubscribe|deactivate|resend|otp|send|approve|reject|revoke|mark|toggle|action=|\/api\//i;
 const queue = [startUrl];
 const seen = new Set();
 const screens = [];
@@ -57,7 +64,7 @@ while (queue.length && screens.length < max) {
     for (const l of info.links) {
       try {
         const u = new URL(l);
-        if (u.origin === origin && !skip.test(u.pathname) && !seen.has(u.href.split('#')[0].replace(/\/$/, ''))) queue.push(u.href.split('#')[0]);
+        if (u.origin === origin && !skip.test(u.pathname + u.search) && !seen.has(u.href.split('#')[0].replace(/\/$/, ''))) queue.push(u.href.split('#')[0]);
       } catch {}
     }
   } catch (e) {

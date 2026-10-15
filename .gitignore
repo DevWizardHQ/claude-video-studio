@@ -5,3 +5,9 @@ out/
 .DS_Store
 __pycache__/
 .env
+inputs/
+discovery/
+storageState.json
+state.json
+voice/
+audio/

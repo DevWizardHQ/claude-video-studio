@@ -1,6 +1,6 @@
 ---
 name: video-studio
-description: Use when the user wants a product tutorial, how-to, explainer, onboarding, feature announcement or marketing video, in any language including Bangla, from a live website, screenshots, a design file, an app recording, illustrations or text. Runs the whole agency workflow with approval gates - source and discovery, brief interview, story, script, speaker lines, build, compose, QA. Triggers on video, tutorial video, screen recording, voice-over, narration, explainer, promo, marketing video, Remotion, subtitles.
+description: This skill should be used when the user asks for a video made from a product, website, app or screens - a tutorial, how-to, explainer, onboarding, announcement or promo, in any language including Bangla. It is the single entry point and runs the full agency workflow with approval gates (source, discovery, brief, story, script, speaker lines, build, compose, QA). Other video-* skills are loaded by this one.
 ---
 
 # Video Studio
@@ -33,6 +33,8 @@ One workflow for every video. The order never changes and no step is skipped.
 8. Mask personal data in the page or image itself before recording. Never rely on editing it out later.
 9. Use Sonnet for building agents and Opus only for review.
 10. Verify with frames before claiming a stage is done: look at them.
+11. Load `video-craft` guides for the stage you are in; they are the house standard.
+12. Run the gates in the main session. Subagents are for build, compose and review only.
 
 ## Working folder
 

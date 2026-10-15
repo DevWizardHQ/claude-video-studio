@@ -3,7 +3,11 @@ import subprocess
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).parent))
+import subs
+
 slides_path, phrases_path, voice_dir, out_dir = map(Path, sys.argv[1:5])
+intro = float(json.loads(Path(sys.argv[5]).read_text()).get("introSeconds", 3)) if len(sys.argv) > 5 else 3.0
 slides = json.loads(slides_path.read_text())
 phrases = {p["i"]: p for p in json.loads(phrases_path.read_text())}
 out_dir.mkdir(parents=True, exist_ok=True)
@@ -12,7 +16,10 @@ LEAD, GAP, TAIL, HOLD = 0.4, 0.12, 0.35, 3.0
 
 def dur(i):
     p = phrases[i]
-    return p["e"] - p["s"]
+    if "s" in p and "e" in p:
+        return p["e"] - p["s"]
+    return float(subprocess.check_output(
+        ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(voice_dir / f"ph{i}.wav")]).decode())
 
 
 t = LEAD
@@ -20,7 +27,7 @@ events, scenes, callouts, urls = [], [], [], []
 for n, sc in enumerate(slides["scenes"]):
     t0 = t
     for i in sc["phrases"]:
-        events.append({"i": i, "t": t, "dur": dur(i), "text": phrases[i]["text"], "step": sc.get("step", n), "focus": None})
+        events.append({"i": i, "t": t, "dur": dur(i), "text": phrases[i].get("caption") or phrases[i]["text"], "step": sc.get("step", n), "focus": None})
         t += dur(i) + GAP
     t1 = t + TAIL
     scenes.append({"image": sc["image"], "t0": t0, "t1": t1, "focus": sc.get("focus"), "step": sc.get("step", n)})
@@ -47,6 +54,7 @@ subprocess.run(
     check=True,
 )
 inner = t + HOLD
+subs.write(events, out_dir, intro)
 (out_dir / "meta.json").write_text(json.dumps(
     {"innerDur": inner, "events": events, "callouts": callouts, "urls": urls}, ensure_ascii=False, indent=1))
 (out_dir / "scenes.json").write_text(json.dumps({"size": slides["size"], "scenes": scenes}, indent=1))

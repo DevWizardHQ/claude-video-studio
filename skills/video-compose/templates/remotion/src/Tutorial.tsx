@@ -18,8 +18,8 @@ const VIEW_PX_H = VIEW_H * K;
 const BAR = 54;
 const WIN_X = (1920 - WIN_W) / 2;
 const WIN_Y = 118;
-const INTRO = brand.introSeconds;
-const END = brand.outroSeconds;
+const INTRO = S.intro === "none" ? 0 : brand.introSeconds;
+const END = S.outro === "none" ? 0 : brand.outroSeconds;
 
 const BN = "০১২৩৪৫৬৭৮৯";
 const num = (n: number) => (brand.numerals === "bn" ? String(n).replace(/\d/g, (d) => BN[Number(d)]) : String(n));
@@ -35,7 +35,7 @@ const useFont = () => {
   const [handle] = useState(() => delayRender("font"));
   useEffect(() => {
     const f = new FontFace("BrandFont", `url(${staticFile(brand.fontFile)})`, { weight: "100 900" });
-    f.load().then((l) => { document.fonts.add(l); continueRender(handle); }).catch(() => continueRender(handle));
+    f.load().then((l) => { document.fonts.add(l); continueRender(handle); }).catch((err) => { console.error("font failed", err); continueRender(handle); });
   }, [handle]);
 };
 
@@ -51,7 +51,7 @@ const captionGroups = (() => {
   for (const e of events) {
     if (cur.length && cur[cur.length - 1].step !== e.step) flush();
     cur.push(e);
-    if (/[।!?.]$/.test(e.text)) flush();
+    if (/[।!?.؟。！？]\s*$/.test(e.text)) flush();
   }
   flush();
   return groups.map((g, k, a) => ({ ...g, t1: Math.min(g.t1 + 0.35, a[k + 1] ? a[k + 1].t0 : g.t1 + 0.35) }));
@@ -70,7 +70,7 @@ const zoomKeys = (() => {
   const keys: { t: number; s: number; cx: number; cy: number }[] = [];
   const push = (k: { t: number; s: number; cx: number; cy: number }) => {
     const last = keys[keys.length - 1];
-    keys.push({ ...k, t: last && k.t <= last.t ? last.t + 0.01 : k.t });
+    keys.push({ ...k, t: last && k.t < last.t + 0.25 ? last.t + 0.25 : k.t });
   };
   segs.forEach((g, i) => {
     const prev = segs[i - 1];
@@ -111,8 +111,8 @@ const Tooltip = ({ c, t }: { c: Callout; t: number }) => {
 
 const Window = ({ t, frame }: { t: number; frame: number }) => {
   const { fps } = useVideoConfig();
-  const pop = spring({ frame: frame - INTRO * fps + 6, fps, config: { damping: 22, stiffness: 120 } });
-  const outStart = (INTRO + meta.innerDur) * fps;
+  const pop = spring({ frame: frame - Math.round(INTRO * fps) + 6, fps, config: { damping: 22, stiffness: 120 } });
+  const outStart = Math.round((INTRO + meta.innerDur) * fps);
   const outP = interpolate(frame, [outStart, outStart + 18], [0, 1], { ...clamp, easing: ease });
   const scale = interpolate(pop, [0, 1], [0.9, 1]) * interpolate(outP, [0, 1], [1, 0.94]);
   const opacity = interpolate(pop, [0, 1], [0, 1]) * (1 - outP);
@@ -151,7 +151,7 @@ const Window = ({ t, frame }: { t: number; frame: number }) => {
           <div style={{ width: "100%", height: "100%", scale: String(zs), transformOrigin: `${(zx / VIEW_W) * 100}% ${(zy / VIEW_H) * 100}%` }}>
             <OffthreadVideo src={staticFile("inner.mp4")} muted style={{ width: WIN_W, height: VIEW_PX_H, display: "block" }} />
           </div>
-          {S.callouts === "tooltip" && activeCallout && zs < 1.02 ? <Tooltip c={activeCallout} t={t} /> : null}
+          {S.callouts === "tooltip" && activeCallout ? <Tooltip c={activeCallout} t={t} /> : null}
           {group ? (
             <div style={{ position: "absolute", left: "50%", bottom: 26, translate: `-50% ${capY}px`, opacity: capO, maxWidth: 980, display: "flex", alignItems: "center", justifyContent: "center", padding: "12px 28px", borderRadius: 14, background: "rgba(10,22,15,.78)", color: "#f4f7f4", fontFamily: FONT, fontWeight: brand.caption.weight, fontSize: brand.caption.size, lineHeight: 1.55, textAlign: "center", textWrap: "balance" as never }}>
               {S.captionAnimation === "typewriter"
@@ -169,7 +169,7 @@ const Hud = ({ t, frame }: { t: number; frame: number }) => {
   const { fps } = useVideoConfig();
   const total = brand.stepTitles.length;
   const step = Math.min(total - 1, Math.max(0, stepStarts.reduce((acc, s, i) => (s !== undefined && t >= s ? i : acc), 0)));
-  const p = interpolate(frame, [INTRO * fps - 6, INTRO * fps + 14], [0, 1], { ...clamp, easing: ease });
+  const p = interpolate(frame, [Math.round(INTRO * fps) - 6, Math.round(INTRO * fps) + 14], [0, 1], { ...clamp, easing: ease });
   const chip = spring({ frame: frame - Math.round(((stepStarts[step] ?? 0) + INTRO) * fps), fps, config: { damping: 18, stiffness: 160 } });
   return (
     <>
@@ -215,12 +215,14 @@ export const Tutorial = () => {
   return (
     <AbsoluteFill style={{ background: S.background === "solid" ? brand.dark : `linear-gradient(135deg, ${brand.dark}, ${brand.mid} 60%, ${brand.primary})`, fontFamily: FONT }}>
       <AbsoluteFill style={{ background: `radial-gradient(900px 600px at ${30 + Math.sin(drift / 4) * 8}% ${20 + Math.cos(drift / 5) * 8}%, rgba(255,255,255,.14), transparent 70%)` }} />
-      <Sequence from={0} durationInFrames={INTRO * fps}><Card title={brand.introTitle} subtitle={brand.introSubtitle} fadeOut /></Sequence>
+      {INTRO > 0 ? <Sequence from={0} durationInFrames={Math.round(INTRO * fps)}><Card title={brand.introTitle} subtitle={brand.introSubtitle} fadeOut /></Sequence> : null}
       <Window t={t} frame={frame} />
       <Hud t={t} frame={frame} />
-      <Sequence from={Math.round((INTRO + meta.innerDur) * fps)} durationInFrames={END * fps}>
-        <Card title={brand.outroTitle} subtitle={brand.domain} />
-      </Sequence>
+      {END > 0 ? (
+        <Sequence from={Math.round((INTRO + meta.innerDur) * fps)} durationInFrames={Math.round(END * fps)}>
+          <Card title={brand.outroTitle} subtitle={brand.domain} />
+        </Sequence>
+      ) : null}
       <Sequence from={Math.round(INTRO * fps)}><Audio src={staticFile("narration.wav")} /></Sequence>
     </AbsoluteFill>
   );

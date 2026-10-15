@@ -1,13 +1,13 @@
 ---
 name: video-script-review
-description: Use after the brief is approved and before any recording. Writes the full reviewable script document (scenes, on-screen actions, narration, captions, tooltips, masking, timing, edge cases) for user approval, then produces the speaker-line sheet with voice brief and pronunciation glossary for the user to record or generate audio. Triggers on video script, narration script, speaker lines, voice-over, audio brief, script approval.
+description: Loaded by video-studio at stages 4 and 5 of a video project. Writes the full reviewable script (scenes, narration, captions, tooltips, masking, timing, edge cases) for approval, then the speaker-line sheet with voice brief and glossary so the user can record or generate the audio.
 ---
 
 # Video Script Review
 
-Two documents, two gates. Nothing is recorded or generated before gate 2.
+Two documents, two gates. Runs after the story is approved (stage 3). Nothing is recorded before stage 5 is complete.
 
-## Gate 2 - script.md
+## Stage 4 - script.md (gate: script approved)
 
 Use `references/script-template.md`. One table row per scene. Every row has:
 
@@ -20,17 +20,18 @@ Use `references/script-template.md`. One table row per scene. Every row has:
 
 Also include: opening and closing cards, the edge-case scenes from `references/edge-cases.md` that the brief selected, and a short list of open questions.
 
-Present the document in full (not a summary) and ask for approval or edits. Apply edits and show only what changed.
+Present the document in full (not a summary). Then ask with AskUserQuestion: Approve (Recommended) / Change the order / Change wording / Add or remove a scene. Apply edits, show only what changed, ask again. Keep each approved version as `script.v1.md`, `script.v2.md`.
 
-## Gate 3 - speaker-lines.md
+## Stage 5 - speaker-lines.md (gate: audio returned)
 
 Only after approval. Use `references/speaker-lines-template.md`.
 
 - Split narration into speaker lines `L01`, `L02`, ... one idea each, at most two short sentences.
 - Add delivery notes per line (tone, pause, emphasis) and a pronunciation glossary (OTP, KYC, brand names, numbers).
-- Give the voice brief: voice, pace, style prompt, file format (wav, 48 kHz or 44.1 kHz, mono ok), naming `L01.wav`.
-- Ask for one file per line. If the user supplies one long file instead, split it by silence and state the confidence honestly.
+- Give the voice brief: voice, pace, style prompt, file format (wav or mp3, mono ok), naming `L01.wav`, `L02.wav`.
+- Ask for one file per line. After the files arrive run `video-compose/tools/prepare_lines.py speaker-lines.md audio/ voice/`. If the user supplies one long file instead, split it with `split_audio.py` and state the confidence honestly.
 - Re-record only the lines that change when the script is edited later.
+- The sheet table is machine-read: keep the header `| ID | Scene | Text | Caption | Delivery |` and one row per line.
 
 ## Bangla notes
 

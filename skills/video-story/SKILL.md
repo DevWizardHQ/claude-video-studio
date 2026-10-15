@@ -1,6 +1,6 @@
 ---
 name: video-story
-description: Use after discovery and the brief, before the script. Designs the story of the video - audience problem, promise, arc, scene map, tone, hook and call to action - and presents it for approval so changes are cheap. Triggers on story, storyline, narrative, hook, scene order, explain the flow, what should the video say.
+description: Loaded by video-studio at stage 3 of a video project, after the brief and before the script. Designs the video story - viewer problem, promise, hook, arc, scene map, snags and call to action - and iterates it with the user until approved.
 ---
 
 # Video Story
@@ -20,12 +20,7 @@ The story is approved before the script is written. Changing a story costs minut
 
 ## Present and iterate
 
-Show the whole story, not a summary. Ask:
-- Is the order right?
-- Is anything missing or too long?
-- Is the promise the right promise?
-
-Apply changes, show the diff in the scene map, ask again. Only an explicit approval moves to `video-script-review`.
+Show the whole story, not a summary. Then ask with AskUserQuestion: Approve (Recommended) / Change the order / Change the promise or hook / Add or remove a scene. Apply changes, show the diff in the scene map, ask again. Only an explicit approval moves to `video-script-review`.
 
 ## Principles
 

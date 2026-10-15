@@ -3,8 +3,14 @@ import subprocess
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).parent))
+import subs
+
 topic_path, out_dir = Path(sys.argv[1]), Path(sys.argv[2])
 topic = json.loads(topic_path.read_text())
+intro = 3.0
+if len(sys.argv) > 3:
+    intro = float(json.loads(Path(sys.argv[3]).read_text()).get("introSeconds", 3))
 root = topic_path.parent
 voice = root / topic.get("voiceDir", "voice")
 phrases = {p["i"]: p for p in json.loads((root / topic["phrases"]).read_text())}
@@ -16,14 +22,21 @@ KEEP, HOLD = 1.0, 4.0
 cuts = sorted(data["cuts"], key=lambda c: c["ws"])
 segments, cursor, removed = [], 0.0, []
 for c in cuts:
-    segments.append((cursor, c["ws"] + KEEP))
-    removed.append((c["we"], c["we"] - c["ws"] - KEEP))
+    keep = min(KEEP, c["we"] - c["ws"])
+    segments.append((cursor, c["ws"] + keep))
+    removed.append((c["ws"] + keep, c["we"], c["we"] - c["ws"] - keep))
     cursor = c["we"]
 segments.append((cursor, end))
 
 
 def gmap(t):
-    return t - sum(r for we, r in removed if t >= we)
+    back = 0.0
+    for a, b, r in removed:
+        if t >= b:
+            back += r
+        elif t > a:
+            return a - back
+    return t - back
 
 
 parts = []
@@ -41,8 +54,8 @@ subprocess.run(
 events = []
 for e in data["events"]:
     p = phrases[e["i"]]
-    events.append({"i": e["i"], "t": gmap(e["t"]), "dur": e["dur"], "text": p["text"], "step": p.get("step", 0),
-                   "focus": e.get("focus")})
+    events.append({"i": e["i"], "t": gmap(e["t"]), "dur": e["dur"], "text": p.get("caption") or p["text"],
+                   "step": p.get("step", 0), "focus": e.get("focus")})
 events.sort(key=lambda e: e["t"])
 
 inputs, filters, labels = [], [], []
@@ -72,35 +85,11 @@ for u in topic.get("urls", []):
         urls.append({"t": e["t"] + e["dur"] + 0.3, "url": u["url"]})
 urls.sort(key=lambda u: u["t"])
 
+subs.write(events, out_dir, intro)
+
 callouts = [{"t0": gmap(c["t0"]), "t1": gmap(c["t1"]), "box": c["box"], "text": c["text"]} for c in data.get("callouts", [])]
 inner_dur = float(subprocess.check_output(
     ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(inner)]).decode())
-def stamp(t, sep):
-    h, r = divmod(t, 3600)
-    m, sec = divmod(r, 60)
-    return f"{int(h):02d}:{int(m):02d}:{int(sec):02d}{sep}{int((sec % 1) * 1000):03d}"
-
-
-groups, cur = [], []
-for e in events:
-    if cur and cur[-1]["step"] != e["step"]:
-        groups.append(cur)
-        cur = []
-    cur.append(e)
-    if e["text"].rstrip().endswith(("।", "!", "?", ".")):
-        groups.append(cur)
-        cur = []
-if cur:
-    groups.append(cur)
-srt, vtt = [], ["WEBVTT", ""]
-for n, g in enumerate(groups, 1):
-    a, b = g[0]["t"], g[-1]["t"] + g[-1]["dur"] + 0.2
-    text = " ".join(x["text"] for x in g)
-    srt += [str(n), f"{stamp(a, ',')} --> {stamp(b, ',')}", text, ""]
-    vtt += [f"{stamp(a, '.')} --> {stamp(b, '.')}", text, ""]
-(out_dir / "captions.srt").write_text("\n".join(srt))
-(out_dir / "captions.vtt").write_text("\n".join(vtt))
-
 meta = {"innerDur": inner_dur, "events": events, "callouts": callouts, "urls": urls}
 (out_dir / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=1))
 print(f"inner {inner_dur:.1f}s, {len(events)} lines, {len(cuts)} cut(s)")

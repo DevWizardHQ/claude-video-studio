@@ -13,8 +13,8 @@ const WIN_W = 1500;
 const BAR = 54;
 const WIN_X = (1920 - WIN_W) / 2;
 const WIN_Y = 118;
-const INTRO = brand.introSeconds;
-const END = brand.outroSeconds;
+const INTRO = S.intro === "none" ? 0 : brand.introSeconds;
+const END = S.outro === "none" ? 0 : brand.outroSeconds;
 const IMG_W = scenesData.size.w;
 const IMG_H = scenesData.size.h;
 const K = WIN_W / IMG_W;
@@ -34,7 +34,7 @@ const useFont = () => {
   const [h] = useState(() => delayRender("font"));
   useEffect(() => {
     new FontFace("BrandFont", `url(${staticFile(brand.fontFile)})`, { weight: "100 900" })
-      .load().then((f) => { document.fonts.add(f); continueRender(h); }).catch(() => continueRender(h));
+      .load().then((f) => { document.fonts.add(f); continueRender(h); }).catch((err) => { console.error("font failed", err); continueRender(h); });
   }, [h]);
 };
 
@@ -50,16 +50,22 @@ const groups = (() => {
   for (const e of events) {
     if (cur.length && cur[cur.length - 1].step !== e.step) flush();
     cur.push(e);
-    if (/[।!?.]$/.test(e.text)) flush();
+    if (/[।!?.؟。！？]\s*$/.test(e.text)) flush();
   }
   flush();
   return g;
 })();
 
+const sceneIndex = (t: number) => {
+  const k = scenes.findIndex((s) => t >= s.t0 && t < s.t1);
+  if (k >= 0) return k;
+  return t >= scenes[scenes.length - 1].t1 ? scenes.length - 1 : 0;
+};
+
 const center = (b: Box | null) => (b ? { x: b.x + b.width / 2, y: b.y + b.height / 2 } : { x: IMG_W / 2, y: IMG_H / 2 });
 
 const Cursor = ({ t }: { t: number }) => {
-  const i = Math.max(0, scenes.findIndex((s) => t >= s.t0 && t < s.t1));
+  const i = sceneIndex(t);
   const sc = scenes[i];
   const prev = center(scenes[i - 1]?.focus ?? null);
   const to = center(sc.focus);
@@ -77,10 +83,10 @@ const Cursor = ({ t }: { t: number }) => {
 
 const Stage = ({ t, frame }: { t: number; frame: number }) => {
   const { fps } = useVideoConfig();
-  const pop = spring({ frame: frame - INTRO * fps + 6, fps, config: { damping: 22, stiffness: 120 } });
-  const outStart = (INTRO + meta.innerDur) * fps;
+  const pop = spring({ frame: frame - Math.round(INTRO * fps) + 6, fps, config: { damping: 22, stiffness: 120 } });
+  const outStart = Math.round((INTRO + meta.innerDur) * fps);
   const outP = interpolate(frame, [outStart, outStart + 18], [0, 1], { ...clamp, easing: ease });
-  const idx = Math.max(0, scenes.findIndex((s) => t >= s.t0 && t < s.t1));
+  const idx = sceneIndex(t);
   const sc = scenes[idx];
   const fade = interpolate(t, [sc.t0 - 0.05, sc.t0 + 0.3], [0, 1], clamp);
   const c = center(sc.focus);
@@ -118,6 +124,39 @@ const Stage = ({ t, frame }: { t: number; frame: number }) => {
   );
 };
 
+
+const BN = "০১২৩৪৫৬৭৮৯";
+const num = (n: number) => (brand.numerals === "bn" ? String(n).replace(/\d/g, (d) => BN[Number(d)]) : String(n));
+
+const Hud = ({ t, frame }: { t: number; frame: number }) => {
+  const { fps } = useVideoConfig();
+  const total = brand.stepTitles.length;
+  const sc = scenes[sceneIndex(t)];
+  const step = Math.min(total - 1, sc.step);
+  const p = interpolate(frame, [Math.round(INTRO * fps) - 6, Math.round(INTRO * fps) + 14], [0, 1], { ...clamp, easing: ease });
+  return (
+    <>
+      <div style={{ position: "absolute", left: WIN_X, top: 28, opacity: p, display: "flex", alignItems: "center", gap: 18 }}>
+        <div style={{ background: "#fff", borderRadius: 14, padding: "8px 16px", display: "flex" }}><Img src={staticFile(brand.logo)} style={{ height: 44 }} /></div>
+        <div style={{ fontFamily: FONT, fontWeight: 500, fontSize: 32, color: "#fff" }}>{brand.hudTitle}</div>
+      </div>
+      {S.stepChip ? (
+        <div style={{ position: "absolute", right: WIN_X, top: 30, opacity: p, display: "flex", alignItems: "center", gap: 12, background: "rgba(255,255,255,.12)", border: "1px solid rgba(255,255,255,.25)", borderRadius: 40, padding: "9px 22px", fontFamily: FONT, color: "#fff", fontSize: 26, fontWeight: 500 }}>
+          <span style={{ background: brand.primary, borderRadius: 20, padding: "2px 16px", fontWeight: 600 }}>{brand.stepLabel} {num(step + 1)}/{num(total)}</span>
+          <span>{brand.stepTitles[step]}</span>
+        </div>
+      ) : null}
+      {S.progress === "bar" ? (
+        <div style={{ position: "absolute", left: WIN_X, width: WIN_W, top: 1030, opacity: p, display: "flex", gap: 8 }}>
+          {brand.stepTitles.map((_, i) => (
+            <div key={i} style={{ flex: 1, height: 8, borderRadius: 4, background: i < step ? "#7bd88a" : i === step ? "#fff" : "rgba(255,255,255,.22)" }} />
+          ))}
+        </div>
+      ) : null}
+    </>
+  );
+};
+
 const Card = ({ title, subtitle }: { title: string; subtitle?: string }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -138,9 +177,10 @@ export const Slides = () => {
   const t = Math.max(0, frame / fps - INTRO);
   return (
     <AbsoluteFill style={{ background: S.background === "solid" ? brand.dark : `linear-gradient(135deg, ${brand.dark}, ${brand.mid} 60%, ${brand.primary})` }}>
-      <Sequence from={0} durationInFrames={INTRO * fps}><Card title={brand.introTitle} subtitle={brand.introSubtitle} /></Sequence>
+      {INTRO > 0 ? <Sequence from={0} durationInFrames={Math.round(INTRO * fps)}><Card title={brand.introTitle} subtitle={brand.introSubtitle} /></Sequence> : null}
       <Stage t={t} frame={frame} />
-      <Sequence from={Math.round((INTRO + meta.innerDur) * fps)} durationInFrames={END * fps}><Card title={brand.outroTitle} subtitle={brand.domain} /></Sequence>
+      <Hud t={t} frame={frame} />
+      {END > 0 ? <Sequence from={Math.round((INTRO + meta.innerDur) * fps)} durationInFrames={Math.round(END * fps)}><Card title={brand.outroTitle} subtitle={brand.domain} /></Sequence> : null}
       <Sequence from={Math.round(INTRO * fps)}><Audio src={staticFile("narration.wav")} /></Sequence>
     </AbsoluteFill>
   );

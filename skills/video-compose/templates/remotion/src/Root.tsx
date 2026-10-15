@@ -4,7 +4,10 @@ import { Slides } from "./Slides";
 import meta from "../public/meta.json";
 import brand from "../public/brand.json";
 
-const frames = Math.ceil((brand.introSeconds + meta.innerDur + brand.outroSeconds) * FPS);
+const intro = brand.style.intro === "none" ? 0 : brand.introSeconds;
+const outro = brand.style.outro === "none" ? 0 : brand.outroSeconds;
+
+const frames = Math.ceil((intro + meta.innerDur + outro) * FPS);
 
 export const Root = () => (
   <>

@@ -1,7 +1,7 @@
 # Style catalog
 
 Every option has an id. The user picks ids in the brief; they land in `brand.json` under `style`.
-Status `ready` means the template implements it. `planned` means it is offered as a roadmap item: say so and use the nearest ready option.
+Status `ready` means the template implements it. Columns marked T and S show support in the `Tutorial` (live recording) and `Slides` (screenshots) compositions; unless marked, ready items work in both. `planned` means it is offered as a roadmap item: say so and use the nearest ready option.
 
 ## Text on screen
 
@@ -17,9 +17,9 @@ Decision rule: tutorials for the public, short feeds and WhatsApp use `burned`. 
 
 | id | Status | Feel |
 |----|--------|------|
-| `fade-up` | ready | Calm, default. Slides up 10px while fading in. |
+| `fade-up` | ready (Tutorial; Slides uses fade) | Calm, default. Slides up 10px while fading in. |
 | `fade` | ready | Quietest. |
-| `typewriter` | ready | Playful; suits short lines only. |
+| `typewriter` | ready (Tutorial only) | Playful; suits short lines only. |
 | `word-highlight` | planned | Karaoke emphasis for marketing cuts. |
 
 ## Tooltips and callouts
@@ -39,7 +39,7 @@ Rule: at most one tooltip per scene, 6 words or fewer.
 |----|--------|------|
 | `macos` | ready | Traffic lights, address bar. Default for web tutorials. |
 | `minimal` | ready | Address bar only, no lights. Cleaner for brand-heavy videos. |
-| `none` | ready | Full-bleed page with rounded corners. Best for mobile-first products. |
+| `none` | ready | Window without a title bar (page only, rounded corners, shadow). Full-bleed is planned. |
 | `laptop` | planned | Device mockup for promos. |
 | `phone` | planned | Portrait phone mockup for 9:16. |
 
@@ -55,13 +55,20 @@ Rule: at most one tooltip per scene, 6 words or fewer.
 
 | Setting | id | Status |
 |---------|----|--------|
-| background | `gradient` | ready (brand colors, slow light drift) |
+| background | `gradient` | ready (brand colors; slow light drift in Tutorial only) |
 | background | `solid` | ready |
 | background | `mesh`, `particles` | planned |
 | progress | `bar` / `none` | ready |
 | step chip | `true` / `false` | ready ("Step 3/10 + title") |
-| intro / outro | `card` | ready (logo, title, subtitle; thank-you and domain) |
+| intro / outro | `card`, `none` | ready (logo, title, subtitle; thank-you and domain) |
 | intro | `logo-reveal`, `kinetic-title` | planned |
+
+## Aspect ratio
+
+| id | Status |
+|----|--------|
+| 16:9 (1920x1080) | ready |
+| 9:16, 1:1 | planned |
 
 ## Audio
 

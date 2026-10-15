@@ -5,6 +5,8 @@
   "locale": "bn-BD",
   "phrases": "voice/phrases.json",
   "voiceDir": "voice",
+  "stopAfter": 30,
+  "continueOnError": false,
   "vars": { "NAME": "Abdul Rahim" },
   "mask": {
     "texts": [{ "value": "01700000000", "keepFirst": 5 }],

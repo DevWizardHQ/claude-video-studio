@@ -1,6 +1,6 @@
 ---
 name: video-source-modes
-description: Use when the user has no live website or wants more than a screen recording. Chooses the right build mode - live web recording, screenshot walkthrough, mobile or desktop app recording, design mockup, AI-generated illustrations or animation, kinetic text explainer, or a mix - and gives the pipeline, gates and quality rules for each. Triggers on no website yet, only screenshots, Figma, mockup, animation, AI video, explainer, motion graphics, text animation, slideshow.
+description: Loaded by video-studio at stage 0 of a video project. Chooses the build mode for the video - live web recording, screenshots, app recording, design mockup, illustrated, kinetic text or AI animation - and gives the pipeline and quality rules for each. Use when the user has no live website for the video or wants more than a screen recording.
 ---
 
 # Video Source Modes
@@ -11,7 +11,7 @@ Pick one primary mode per video. Mix only when the brief says so. Every mode kee
 |------|----------|-----------|--------|
 | `live-web` | The product runs and can be driven | `ui-capture` then `video-compose` (Tutorial) | ready |
 | `screenshots` | UI exists as images, a staging link is unavailable, or the flow is risky to repeat | Number images, write `slides.json`, `tools/build_timeline.py`, Remotion `Slides` composition | ready |
-| `app-recording` | Mobile or desktop app | User records the screen with the OS recorder; trim, then `video-compose` with the clip as `inner.mp4` and phrases cut to the clip | guided |
+| `app-recording` | Mobile or desktop app | User records the screen with the OS recorder; the user and Claude write a timing sheet (phrase start seconds) and build `events.json` by hand, then `compose.py` | guided |
 | `design-mockup` | Figma or design exports before the build | Treat exports as `screenshots`; add hotspot boxes for focus zoom | ready |
 | `illustrated` | Concept is abstract (policy, benefits, how an agency works) | Generate or commission illustrations per scene, then `screenshots` path with a different frame (`none`) | guided |
 | `kinetic-text` | No visuals at all, a message or announcement | Remotion text scenes driven by the script lines; same timeline tool | planned |
@@ -24,7 +24,7 @@ Pick one primary mode per video. Mix only when the brief says so. Every mode kee
 Ask with AskUserQuestion, recommended first:
 1. Does the product run today? Yes: `live-web` (Recommended). No but screens exist: `screenshots`. No screens: `illustrated` or `kinetic-text`.
 2. Is the action repeatable and safe on the real system? If not, prefer `screenshots` or a staging copy.
-3. Is the audience watching on phones? Prefer 9:16 and `frame: none`.
+3. Is the audience watching on phones? 9:16 is planned; today use 16:9 with `frame: none` and larger captions.
 
 ## Screenshot mode (ready)
 

@@ -1,6 +1,6 @@
 ---
 name: video-compose
-description: Use after capture, to turn the raw recording and the approved audio into the finished video - split or align audio, cut user-wait spans, build the narration track, and render a branded Remotion composition with browser window frame, zoom, step chips, progress bar, readable captions and tooltip callouts. Triggers on render the video, Remotion, compose, captions style, Bangla captions, browser frame, intro outro, final render.
+description: Loaded by video-studio at stage 7 of a video project. Turns the recording or screenshots and the approved audio into the finished video - cuts waits, builds the narration track and subtitles, and renders a branded Remotion composition with browser frame, zoom, step chips, captions and tooltips.
 ---
 
 # Video Compose
@@ -9,19 +9,26 @@ Inputs: `out/events.json`, `out/raw.path`, `topic.json`, `voice/ph<N>.wav`, `voi
 
 ## Steps
 
-1. **Audio per phrase.** Preferred: the user supplies one file per speaker line; put them in `voice/` as `ph<N>.wav` and write `voice/phrases.json` with `i`, `step`, `text`. If the user supplied one long file, split it:
-   `python3 tools/split_audio.py narration.wav lines.json voice/`
-   It matches pauses to line breaks and reports how many it interpolated. Treat interpolated lines as approximate and say so.
+1. **Audio per phrase.** Preferred: one file per speaker line (`L01.wav` ...). Convert and index them:
+   `python3 ${CLAUDE_PLUGIN_ROOT}/skills/video-compose/tools/prepare_lines.py speaker-lines.md audio/ voice/`
+   This writes `voice/ph<N>.wav` and `voice/phrases.json` (`i`, `step`, `text`, `caption`). If the user supplied one long file, write `lines.json` (`[{"i":0,"step":0,"text":"..."}]`) and split:
+   `python3 .../tools/split_audio.py narration.wav lines.json voice/`
+   It matches pauses to line breaks and reports how many were interpolated. Treat interpolated lines as approximate and say so.
 2. **Compose inner video and narration.**
-   `python3 tools/compose.py topic.json out/`
-   Cuts every `cuts[]` span (keeps 1s), writes `inner.mp4`, `narration.wav` (loudness -15 LUFS) and `meta.json`.
+   `python3 .../tools/compose.py topic.json out/ remotion/public/brand.json`
+   Cuts every `cuts[]` span (keeps 1s), writes `inner.mp4`, `narration.wav` (loudness -15 LUFS), `meta.json` and `captions.srt` / `captions.vtt` already offset by the intro length. For screenshots use `build_timeline.py slides.json voice/phrases.json voice/ out/ remotion/public/brand.json`.
 3. **Remotion project.** Copy `templates/remotion/` to `remotion/`, `npm i`, copy `out/inner.mp4`, `narration.wav`, `meta.json` into `remotion/public/`, add the logo and a Bengali-capable font as `font.ttf`, edit `public/brand.json`.
-4. **Stills first.** `npx remotion still Tutorial stills/s300.png --frame=300` at the intro, a typing scene, a callout, a failure scene and the outro. Look at them. Fix before rendering.
-5. **Render.** `npm run render`. Extract three frames and the audio level before handing over.
+4. **Stills first.** `npx remotion still Tutorial stills/s300.png --frame=300` (use `Slides` for screenshot mode) at the intro, a typing scene, a callout, a failure scene and the outro. Look at them. Fix before rendering.
+5. **Render.** `npm run render` (or `render:slides`). Extract three frames and check the audio level.
+6. **Deliver.** `python3 .../tools/deliver.py remotion/out/final.mp4 out/captions.srt out/captions.vtt final/ <name>` copies the MP4 and subtitles and writes a thumbnail.
 
 ## Style options
 
 Offer the choices in `references/style-catalog.md` before editing `brand.json` `style`. Ask whether captions are burned in, delivered as sidecar subtitles only, both, or omitted, and whether tooltips are wanted. `captions.srt` and `captions.vtt` are always written by `compose.py`.
+
+## First run
+
+`cd remotion && npm i`. Put the brand logo at `public/logo.png` and a Bengali-capable font at `public/font.ttf` (Noto Sans Bengali, SIL OFL, from Google Fonts). Remotion downloads its own headless browser on the first render. Requires ffmpeg 4.4 or newer.
 
 ## Caption and tooltip rules
 
