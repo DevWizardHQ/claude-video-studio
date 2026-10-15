@@ -1,6 +1,6 @@
 ---
 name: video-studio
-description: Use when the user wants a product tutorial, how-to, explainer, onboarding, feature announcement or marketing video made from a real web app, in any language including Bangla. Runs the whole agency workflow with approval gates - brief interview, script review, speaker lines, UI capture, Remotion composition, QA. Triggers on video, tutorial video, screen recording, voice-over, narration, explainer, promo, marketing video, Remotion.
+description: Use when the user wants a product tutorial, how-to, explainer, onboarding, feature announcement or marketing video, in any language including Bangla, from a live website, screenshots, a design file, an app recording, illustrations or text. Runs the whole agency workflow with approval gates - source and discovery, brief interview, story, script, speaker lines, build, compose, QA. Triggers on video, tutorial video, screen recording, voice-over, narration, explainer, promo, marketing video, Remotion, subtitles.
 ---
 
 # Video Studio
@@ -11,38 +11,41 @@ One workflow for every video. The order never changes and no step is skipped.
 
 | # | Stage | Skill | Gate (user must approve) |
 |---|-------|-------|--------------------------|
-| 1 | Brief | `video-brief-interview` | Brief summary confirmed |
-| 2 | Script | `video-script-review` | Full script document approved |
-| 3 | Speaker lines | `video-script-review` | User delivers audio files |
-| 4 | Capture | `ui-capture` | Capture screenshots verified |
-| 5 | Compose | `video-compose` | Stills approved, then full render |
-| 6 | QA | agent `video-qa-reviewer` | Pass verdict |
+| 0 | Source mode | `video-source-modes` | Mode chosen: live web, screenshots, app recording, mockup, illustrated, text, AI animation |
+| 1 | Discovery | `video-discovery` | Screen inventory and per-screen notes confirmed |
+| 2 | Brief | `video-brief-interview` | Brief summary confirmed (includes subtitles, tooltips, style choices) |
+| 3 | Story | `video-story` | Story and scene map approved |
+| 4 | Script | `video-script-review` | Full script document approved |
+| 5 | Speaker lines | `video-script-review` | Lines sent to the user, audio files returned |
+| 6 | Build | `ui-capture` or `video-source-modes` (screenshots) | Frames verified |
+| 7 | Compose | `video-compose` | Stills approved, then full render |
+| 8 | QA | agent `video-qa-reviewer` | Pass verdict |
 
 ## Rules
 
-1. Interview first with AskUserQuestion. Options carry a recommendation, the recommended option is first and labelled `(Recommended)`. Never ask what the repo or product already answers.
-2. Present the whole script for review before any audio is requested and before anything is recorded. Edits restart the gate.
-3. The user produces the voice (own recording or a TTS tool). Hand over the speaker-line sheet, ask for one audio file per line, then sync to those files.
-4. Cover edge cases from the checklist in `video-script-review/references/edge-cases.md` as scenes: resend, failure, support, recovery.
-5. Ask whether the viewer needs on-screen text, sidecar subtitles, tooltips, and which frame and animation style. Offer the style catalog; do not decide silently.
-6. Mask personal data in the page itself (blur or dots) before recording. Never rely on editing it out later.
-7. Use Sonnet for building agents and Opus only for review.
-8. Verify with frames before claiming a stage is done: look at them.
+1. Learn the real screens before asking questions or writing anything. With a URL, crawl it. With screenshots, read every image. With nothing, choose a source mode first.
+2. Interview with AskUserQuestion. Options carry a recommendation, the recommended option first and labelled `(Recommended)`. Never ask what the product or the repo already answers.
+3. Story before script, script before audio, audio before recording. Every edit restarts only the gate it touches.
+4. Show whole documents for review, not summaries.
+5. The user produces the voice (own recording or a TTS tool). Hand over the speaker-line sheet, ask for one audio file per line, then sync to those files.
+6. Cover edge cases from `video-script-review/references/edge-cases.md` as scenes: resend, failure, support, recovery.
+7. Ask whether the viewer needs burned-in text, sidecar subtitles, tooltips, and which frame and animation style. Offer `video-compose/references/style-catalog.md`; do not decide silently.
+8. Mask personal data in the page or image itself before recording. Never rely on editing it out later.
+9. Use Sonnet for building agents and Opus only for review.
+10. Verify with frames before claiming a stage is done: look at them.
 
 ## Working folder
 
 ```
 <video-id>/
+  discovery/        screens.json, screens.md, shots/, screen-notes.md
   brief.md          approved brief
+  story.md          approved story
   script.md         approved script
-  speaker-lines.md  lines + voice brief + glossary
-  audio/            one wav per speaker line  (L01.wav ...)
-  topic.json        capture config  (see ui-capture)
-  out/              raw recording, events.json, inner.mp4, narration.wav, meta.json
-  remotion/         Remotion project from video-compose template
-  final/            register-final.mp4, captions.srt, thumbnail.png
+  speaker-lines.md  lines, voice brief, glossary
+  voice/            ph0.wav ... and phrases.json
+  topic.json        capture config (live-web) or slides.json (screenshots)
+  out/              raw recording, events.json, inner.mp4, narration.wav, meta.json, captions.srt
+  remotion/         Remotion project from the video-compose template
+  final/            final.mp4, captions.srt, captions.vtt, thumbnail.png
 ```
-
-## Starting
-
-Load `video-brief-interview`, run it, write `brief.md`, then continue down the table.

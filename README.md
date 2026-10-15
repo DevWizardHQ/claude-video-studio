@@ -9,6 +9,9 @@ Works for any product and any language. Built and proven on Bangla tutorials.
 | Piece | Purpose |
 |-------|---------|
 | `video-studio` | Orchestrator skill. Fixed order, approval gates. |
+| `video-source-modes` | Choose live web, screenshots, app recording, mockup, illustrated, text or AI animation, with the pipeline for each. |
+| `video-discovery` | Crawl a URL or read screenshots, list every screen, interview you per screen. |
+| `video-story` | Story, hook, arc and scene map for approval before the script. |
 | `video-brief-interview` | Interviews you with options and a recommendation, writes `brief.md`. |
 | `video-script-review` | Full reviewable script, then speaker lines, voice brief and glossary. Edge-case checklist (resend OTP, support, failures). |
 | `ui-capture` | Playwright runner: cursor, ripple, highlight, per-field blur masking, OTP waits, cue-based sync to your audio. |
@@ -27,12 +30,14 @@ The Remotion skills (`npx skills add remotion-dev/skills`) are recommended for S
 
 ## Workflow
 
-1. Brief interview, you approve `brief.md`.
-2. Script review, you approve `script.md`.
-3. Speaker lines, you record or generate one audio file per line.
-4. Capture the live flow against your audio.
-5. Compose in Remotion, review stills, render.
-6. QA review, deliver MP4, SRT, thumbnail.
+1. Source mode and discovery of every screen.
+2. Brief interview, you approve `brief.md`.
+3. Story, you approve `story.md`.
+4. Script, you approve `script.md`.
+5. Speaker lines, you record or generate one audio file per line.
+6. Build: capture the live flow, or assemble screenshots, against your audio.
+7. Compose in Remotion, review stills, render.
+8. QA review, deliver MP4, SRT, VTT, thumbnail.
 
 ## Licence
 

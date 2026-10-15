@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "remotion studio",
     "still": "remotion still Tutorial",
-    "render": "remotion render Tutorial out/final.mp4 --codec=h264 --crf=18"
+    "render": "remotion render Tutorial out/final.mp4 --codec=h264 --crf=18",
+    "render:slides": "remotion render Slides out/final.mp4 --codec=h264 --crf=18"
   },
   "dependencies": {
     "@remotion/cli": "4.0.535",

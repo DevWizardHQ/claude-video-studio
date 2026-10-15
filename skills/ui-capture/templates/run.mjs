@@ -1,7 +1,9 @@
-import { chromium } from 'playwright';
+import { createRequire } from 'module';
 import { readFileSync, writeFileSync, mkdirSync, existsSync, unlinkSync } from 'fs';
 import { execFileSync } from 'child_process';
 import { dirname, resolve } from 'path';
+
+const { chromium } = createRequire(resolve(process.cwd(), 'noop.js'))('playwright');
 
 const topicPath = resolve(process.argv[2]);
 const outDir = resolve(process.argv[3] ?? 'out');
