@@ -1,0 +1,43 @@
+{
+  "name": "Brand",
+  "domain": "example.com",
+  "logo": "logo.png",
+  "fontFile": "font.ttf",
+  "primary": "#2f7d32",
+  "dark": "#0b2a17",
+  "mid": "#14532d",
+  "light": "#bfe8c6",
+  "hudTitle": "Video title",
+  "introTitle": "Video title",
+  "introSubtitle": "Short subtitle",
+  "outroTitle": "Thank you",
+  "numerals": "en",
+  "stepLabel": "Step",
+  "stepTitles": [
+    "Step one",
+    "Step two"
+  ],
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "introSeconds": 3,
+  "outroSeconds": 3,
+  "caption": {
+    "size": 30,
+    "weight": 400
+  },
+  "zoom": 1.15,
+  "style": {
+    "frame": "macos",
+    "background": "gradient",
+    "zoom": "focus",
+    "captions": "burned",
+    "captionAnimation": "fade-up",
+    "callouts": "tooltip",
+    "progress": "bar",
+    "stepChip": true,
+    "intro": "card",
+    "outro": "card"
+  }
+}

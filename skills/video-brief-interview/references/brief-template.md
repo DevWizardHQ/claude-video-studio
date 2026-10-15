@@ -1,0 +1,24 @@
+# Brief: <video id>
+
+- Type:
+- Audience:
+- Goal (viewer does):
+- Language, register, pace:
+- Voice source:
+- Aspect and length:
+- Brand: logo, colors, font, URL:
+- Intro / outro:
+- Environment and test account:
+- Masking rules:
+- Flow in scope:
+- Edge cases in scope:
+- Support contact:
+- Text on screen: burned / sidecar only / both / none
+- Tooltips: yes / no
+- Caption animation:
+- Frame:
+- Camera:
+- Step chip and progress:
+- Deliverables:
+- Review rounds:
+- Out of scope:

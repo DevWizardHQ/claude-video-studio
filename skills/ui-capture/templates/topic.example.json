@@ -1,0 +1,36 @@
+{
+  "id": "register",
+  "base": "https://example.com",
+  "viewport": { "width": 1280, "height": 720 },
+  "locale": "bn-BD",
+  "phrases": "voice/phrases.json",
+  "voiceDir": "voice",
+  "vars": { "NAME": "Abdul Rahim" },
+  "mask": {
+    "texts": [{ "value": "01700000000", "keepFirst": 5 }],
+    "fields": [
+      { "selector": "#phone", "keepFirst": 5 },
+      { "selector": "#username", "afterLast": "_" }
+    ]
+  },
+  "start": "/",
+  "urls": [
+    { "fromPhrase": 0, "url": "example.com" },
+    { "afterPhrase": 4, "url": "example.com/register" }
+  ],
+  "cues": [
+    { "i": 0, "do": [] },
+    { "i": 4, "land": "end", "do": [{ "click": "a[href$='/register'] >> visible=true" }] },
+    { "i": 6, "do": [{ "type": ["#name", "${NAME}"] }] },
+    {
+      "i": 10,
+      "do": [{ "highlight": "#username" }],
+      "callout": { "selector": "#username", "text": "Created automatically" }
+    },
+    { "i": 26, "land": "end", "do": [{ "click": "button[type=submit]" }] },
+    {
+      "i": 29,
+      "do": [{ "askUser": { "file": "inputs/otp.txt", "into": "input[id^=otp-box]", "mode": "each", "submit": "button[type=submit]" } }]
+    }
+  ]
+}

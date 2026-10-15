@@ -1,0 +1,7 @@
+node_modules/
+out/
+*.webm
+*.mp4
+.DS_Store
+__pycache__/
+.env

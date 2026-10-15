@@ -1,0 +1,10 @@
+{
+  "name": "claude-video-studio",
+  "version": "0.1.0",
+  "description": "A video production agency for Claude Code: concept interview, reviewable script, speaker lines, UI capture and Remotion composition for product tutorials and marketing videos.",
+  "author": { "name": "DevWizard", "url": "https://github.com/DevWizardHQ" },
+  "homepage": "https://github.com/DevWizardHQ/claude-video-studio",
+  "repository": "https://github.com/DevWizardHQ/claude-video-studio",
+  "license": "MIT",
+  "keywords": ["video", "remotion", "playwright", "tutorial", "marketing", "bangla", "tts"]
+}

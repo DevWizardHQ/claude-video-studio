@@ -1,0 +1,11 @@
+{
+  "name": "devwizard-video-studio",
+  "owner": { "name": "DevWizard" },
+  "plugins": [
+    {
+      "name": "claude-video-studio",
+      "source": "./",
+      "description": "Concept interview, script review, speaker lines, UI capture and Remotion composition for tutorial and marketing videos."
+    }
+  ]
+}
