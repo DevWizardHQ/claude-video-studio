@@ -27,7 +27,7 @@ long_gaps = [c for c in cands if c[1] >= LINE_GAP]
 exact = len(long_gaps) == len(lines) - 1
 
 terminal = [bool(re.search(r"[।!?.]$", p["text"].strip())) for p in lines]
-weights = [max(1, len(re.sub(r"[\s,।!?.]", "", p["text"]))) for p in lines]
+weights = [float(p["weight"]) if "weight" in p else max(1, len(re.sub(r"[\s,।!?.]", "", p["text"]))) for p in lines]
 cum, c = [], 0
 for w in weights[:-1]:
     c += w

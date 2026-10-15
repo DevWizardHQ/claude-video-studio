@@ -15,7 +15,7 @@ Inputs: `out/events.json`, `out/raw.path`, `topic.json`, `voice/ph<N>.wav`, `voi
    `python3 ${CLAUDE_PLUGIN_ROOT}/skills/video-compose/tools/prepare_lines.py speaker-lines.md audio/ voice/`
    This writes `voice/ph<N>.wav` and `voice/phrases.json` (`i`, `step`, `text`, `caption`). If the user supplied one long file, write `lines.json` (`[{"i":0,"step":0,"text":"..."}]`) and split:
    `python3 .../tools/split_audio.py narration.wav lines.json voice/`
-   It matches pauses to line breaks and reports how many were interpolated. Treat interpolated lines as approximate and say so.
+   It matches pauses to line breaks and reports how many were interpolated. If another take of the same script exists, add `"weight": <seconds of that line>` to each entry of `lines.json` to guide the split. Pauses of 2 seconds (SSML block in `audio.md`) give an exact split; short pauses do not. Treat interpolated lines as approximate and say so.
 2. **Compose inner video and narration.**
    `python3 .../tools/compose.py topic.json out/ remotion/public/brand.json`
    Cuts every `cuts[]` span (keeps 1s), writes `inner.mp4`, `narration.wav` (loudness -15 LUFS), `meta.json` and `captions.srt` / `captions.vtt` already offset by the intro length. For screenshots use `build_timeline.py slides.json voice/phrases.json voice/ out/ remotion/public/brand.json`.
@@ -33,6 +33,7 @@ Offer the choices in `references/style-catalog.md` before editing `brand.json` `
 - `cutKeep`: seconds of each cut wait to keep, per cut in order (keep 5 to 6 for a countdown a line plays over, 1 for a wait for the user).
 - `compressGaps`: `{"over":3,"to":2,"maxFactor":5}` fast-forwards silent action gaps longer than 3s.
 - `autoSpeed`, `alignToMark`, `retime`, `hold` (seconds of the last screen after the last line, default 3).
+- `fitAudio`: schedules lines in order with no overlap and extends the final hold if a different voice runs longer. Use it when the recording was made against another audio file.
 - Two takes can be joined at a phrase with `tools/join_takes.py head_dir tail_dir out_dir <phrase>`.
 
 ## First run

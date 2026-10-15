@@ -18,7 +18,7 @@ data = json.loads((out_dir / "events.json").read_text())
 raw = (out_dir / "raw.path").read_text().strip()
 shift, end = data["shift"], data["end"]
 KEEP, LEAD = 1.0, 0.4
-HOLD = float(topic.get("hold", 3.0))
+MIN_HOLD = float(topic.get("hold", 3.0))
 
 cuts = sorted(data["cuts"], key=lambda c: c["ws"])
 ops = []
@@ -53,6 +53,7 @@ for kind, a, b, f in ops:
         segments.append((a, b, f))
     cursor = b
 segments.append((cursor, end, 1.0))
+base_dur = sum((b - a) / f for a, b, f in segments)
 
 
 def gmap(t):
@@ -64,21 +65,6 @@ def gmap(t):
         elif t > a:
             return (a - back) if kind == "cut" else (a - back) + (t - a) / f
     return t - back
-
-
-parts = []
-for k, (a, b, f) in enumerate(segments):
-    parts.append(f"[0:v]trim={shift + a:.3f}:{shift + b:.3f},setpts=(PTS-STARTPTS)/{f}[v{k}]")
-concat = "".join(f"[v{k}]" for k in range(len(segments)))
-parts.append(f"{concat}concat=n={len(segments)}:v=1:a=0,fps=30,tpad=stop_mode=clone:stop_duration={HOLD}[v]")
-inner = out_dir / "inner.mp4"
-subprocess.run(
-    ["ffmpeg", "-y", "-hide_banner", "-loglevel", "error", "-i", raw, "-filter_complex", ";".join(parts),
-     "-map", "[v]", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "16", "-r", "30", str(inner)],
-    check=True,
-)
-inner_dur = float(subprocess.check_output(
-    ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(inner)]).decode())
 
 
 def caption_of(i):
@@ -97,7 +83,7 @@ def dur_of(i):
 events = []
 for e in data["events"]:
     p = phrases[e["i"]]
-    events.append({"i": e["i"], "t": gmap(e["t"]), "dur": e["dur"], "text": caption_of(e["i"]),
+    events.append({"i": e["i"], "t": gmap(e["t"]), "dur": dur_of(e["i"]), "text": caption_of(e["i"]),
                    "step": p.get("step", 0), "focus": e.get("focus")})
 retime = {int(k): float(v) for k, v in topic.get("retime", {}).items()}
 for e in events:
@@ -111,6 +97,29 @@ for phrase, kind in topic.get("alignToMark", {}).items():
             if e["i"] == int(phrase):
                 e["t"] = gmap(marks_by_kind[kind][0]["a"])
 events.sort(key=lambda e: e["t"])
+
+if topic.get("fitAudio"):
+    prev_end = 0.0
+    for e in events:
+        if e["t"] < prev_end + 0.12:
+            e["t"] = prev_end + 0.12
+        prev_end = e["t"] + e["dur"]
+
+last_voice_end = max((e["t"] + e["dur"] for e in events), default=0.0)
+hold = max(MIN_HOLD, last_voice_end - base_dur + 0.5)
+parts = []
+for k, (a, b, f) in enumerate(segments):
+    parts.append(f"[0:v]trim={shift + a:.3f}:{shift + b:.3f},setpts=(PTS-STARTPTS)/{f}[v{k}]")
+concat = "".join(f"[v{k}]" for k in range(len(segments)))
+parts.append(f"{concat}concat=n={len(segments)}:v=1:a=0,fps=30,tpad=stop_mode=clone:stop_duration={hold}[v]")
+inner = out_dir / "inner.mp4"
+subprocess.run(
+    ["ffmpeg", "-y", "-hide_banner", "-loglevel", "error", "-i", raw, "-filter_complex", ";".join(parts),
+     "-map", "[v]", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "16", "-r", "30", str(inner)],
+    check=True,
+)
+inner_dur = float(subprocess.check_output(
+    ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(inner)]).decode())
 
 absolute = [{**e, "t": e["t"] + intro} for e in events]
 t = LEAD
@@ -156,4 +165,5 @@ urls.sort(key=lambda u: u["t"])
 callouts = [{"t0": gmap(c["t0"]), "t1": gmap(c["t1"]), "box": c["box"], "text": c["text"]} for c in data.get("callouts", [])]
 meta = {"innerDur": inner_dur, "events": events, "callouts": callouts, "urls": urls, "audioFullTimeline": True}
 (out_dir / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=1))
-print(f"inner {inner_dur:.1f}s, {len(events)} lines in video, {len(absolute) - len(events)} on intro/outro, {len(cuts)} cut(s)")
+print(f"inner {inner_dur:.1f}s (hold {hold:.1f}s), {len(events)} lines in video, "
+      f"{len(absolute) - len(events)} on intro/outro, {len(cuts)} cut(s)")
